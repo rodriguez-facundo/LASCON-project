@@ -1,0 +1,11 @@
+objectvar save_window_, rvp_
+objectvar scene_vector_[5]
+objectvar ocbox_, ocbox_list_, scene_, scene_list_
+{ocbox_list_ = new List()  scene_list_ = new List()}
+{
+xpanel("Simulation", 0)
+xbutton("Mature DG","Mature()")
+xbutton("Mature DG + neurogenesis","Neurogenesis()")
+xbutton("Mature + PILO-new-born + Spine loss","PILO()")
+xpanel(6,100)
+}

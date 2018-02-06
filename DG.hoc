@@ -1,0 +1,1414 @@
+/* Dentage Gyrus network model associated with the papers: 
+
+J. Tejada, G.M. Arisi, N. Garcia-Cairasco, A.C. Roque, Morphological alterations in newly born dentate gyrus granule cells that emerge after status epilepticus contribute to make them less excitable, PLoS ONE. 7 (2012) e40726. doi:10.1371/journal.pone.0040726.
+
+J. Tejada, N. Garcia-Cairasco, A.C. Roque, Combined role of seizure-induced dendritic morphology alterations and spine loss in newborn granule cells with mossy fiber sprouting on the hyperexcitability of a computer model of the dentate gyrus, PLoS Comput. Biol. 10 (2014) e1003601. doi:10.1371/journal.pcbi.1003601.
+
+julian.tejada@gmail.com - 2014  
+*/
+
+secondorder=2 
+tstep=0
+period=2
+steps_per_ms = 10 
+dt=0.1
+tstop=300	//1500
+
+// define network size
+ngcell = 500
+nbcell = 6
+nmcell = 15
+nhcell = 6
+npp = 1
+
+
+
+//***********************************************************************************************
+// Load templates of granule cells with realistic morphology
+objref Gcell[ngcell]
+
+// newborn control cells
+load_file("n01.hoc")
+load_file("n02.hoc")
+load_file("n03.hoc")
+load_file("n04.hoc")
+load_file("n05.hoc")
+load_file("n06.hoc")
+load_file("n07.hoc")
+load_file("n08.hoc")
+load_file("n09.hoc")
+load_file("n10.hoc")
+load_file("n11.hoc")
+load_file("n12.hoc")
+load_file("n13.hoc")
+load_file("n14.hoc")
+load_file("n15.hoc")
+load_file("n16.hoc")
+load_file("n17.hoc")
+load_file("n18.hoc")
+load_file("n19.hoc")
+load_file("n20.hoc")
+
+// newborn PILO cells
+
+load_file("n21.hoc")
+load_file("n22.hoc")
+load_file("n23.hoc")
+load_file("n24.hoc")
+load_file("n25.hoc")
+load_file("n26.hoc")
+load_file("n27.hoc")
+load_file("n28.hoc")
+load_file("n29.hoc")
+load_file("n30.hoc")
+load_file("n31.hoc")
+load_file("n32.hoc")
+load_file("n33.hoc")
+load_file("n34.hoc")
+load_file("n35.hoc")
+load_file("n36.hoc")
+load_file("n37.hoc")
+load_file("n38.hoc")
+load_file("n39.hoc")
+load_file("n40.hoc")
+
+// Mature cells
+
+load_file("n41.hoc")
+load_file("n42.hoc")
+load_file("n43.hoc")
+load_file("n44.hoc")
+load_file("n45.hoc")
+load_file("n46.hoc")
+load_file("n47.hoc")
+load_file("n48.hoc")
+load_file("n49.hoc")
+load_file("n50.hoc")
+load_file("n51.hoc")
+load_file("n52.hoc")
+load_file("n53.hoc")
+load_file("n54.hoc")
+load_file("n55.hoc")
+load_file("n56.hoc")
+load_file("n57.hoc")
+load_file("n58.hoc")
+load_file("n59.hoc")
+load_file("n60.hoc")
+load_file("n61.hoc")
+load_file("n62.hoc")
+load_file("n63.hoc")
+load_file("n64.hoc")
+load_file("n65.hoc")
+load_file("n66.hoc")
+load_file("n67.hoc")
+load_file("n68.hoc")
+load_file("n69.hoc")
+load_file("n70.hoc")
+load_file("n71.hoc")
+load_file("n72.hoc")
+load_file("n73.hoc")
+load_file("n74.hoc")
+load_file("n75.hoc")
+load_file("n76.hoc")
+load_file("n77.hoc")
+load_file("n78.hoc")
+load_file("n79.hoc")
+load_file("n80.hoc")
+load_file("n81.hoc")
+load_file("n82.hoc")
+load_file("n83.hoc")
+load_file("n84.hoc")
+load_file("n85.hoc")
+load_file("n86.hoc")
+load_file("n87.hoc")
+load_file("n88.hoc")
+load_file("n89.hoc")
+load_file("n90.hoc")
+load_file("n91.hoc")
+load_file("n92.hoc")
+load_file("n93.hoc")
+load_file("n94.hoc")
+load_file("n95.hoc")
+load_file("n96.hoc")
+load_file("n97.hoc")
+load_file("n98.hoc")
+load_file("n99.hoc")
+load_file("n100.hoc")
+load_file("n101.hoc")
+load_file("n102.hoc")
+load_file("n103.hoc")
+load_file("n104.hoc")
+load_file("n105.hoc")
+load_file("n106.hoc")
+load_file("n107.hoc")
+load_file("n108.hoc")
+load_file("n109.hoc")
+load_file("n110.hoc")
+load_file("n111.hoc")
+load_file("n112.hoc")
+load_file("n113.hoc")
+load_file("n114.hoc")
+
+
+// ************************************************************************************************************
+// Load templates of the other cells
+objref Bcell[nbcell]
+load_file("BasketCell.hoc")
+
+//***********************************************************************************************************
+objref Mcell[nmcell]
+load_file("MossyCell.hoc")
+
+//***********************************************************************************************************
+objref Hcell[nhcell]
+load_file("HIPPCell.hoc")
+//***********************************************************************************************************
+
+// Create the stimulation pattern
+
+objref PPSt[npp]
+
+	begintemplate PPstim
+
+	public pp, connect_pre, is_art, acell
+	create acell
+	objref pp
+
+	proc init() {
+		actemp() 		
+	}
+		proc actemp() {
+				acell pp = new NetStim(.5)
+				pp.interval = 100
+				pp.number = 1
+				pp.start = 5
+				}
+
+	func is_art() {return 1}
+	proc connect_pre() {acell $o2 = new NetCon(pp, $o1)}
+
+	endtemplate PPstim
+//###############################################################################################################
+
+// Read the number of proximal and distal dendrites of each cells from a txt file
+objref arq1
+arq1 = new File()
+arq1.ropen("NumberOfDendrites.dat")
+objref NumOfPD, NumOfDD
+NumOfPD= new Vector(116,0)
+NumOfDD= new Vector(116,0)
+for i=1,114 {
+ NumOfPD.x[i] =  arq1.scanvar()
+ NumOfDD.x[i] =  arq1.scanvar()
+}
+arq1.close()
+
+// Load the order in which each cells will be positioned in the network
+arq1 = new File()
+arq1.ropen(FileName)
+objref NetTopology, Counter, Randomizer
+NetTopology= new Vector(500,0)
+Counter= new Vector(116,0)
+Randomizer = new Vector(36,0)
+for i=0,499 {
+ NetTopology.x[i] =  arq1.scanvar()
+}
+arq1.close()
+
+CellPilo = 0
+i_control = 0
+i_pilo = 0
+
+
+
+// Create the copy of each cells from the templates 
+for i=0,499 {
+    
+//     print i, "Primeiro"
+    if (NetTopology.x[i] == 1) {Gcell[i] = new GranuleCell1(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1 
+     } 
+    if (NetTopology.x[i] == 2) {Gcell[i] = new GranuleCell2(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+    if (NetTopology.x[i] == 3) {Gcell[i] = new GranuleCell3(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }
+    if (NetTopology.x[i] == 4) {Gcell[i] = new GranuleCell4(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+    if (NetTopology.x[i] == 5) {Gcell[i] = new GranuleCell5(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+    if (NetTopology.x[i] == 6) { Gcell[i] = new GranuleCell6(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+    if (NetTopology.x[i] == 7) { Gcell[i] = new GranuleCell7(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+    if (NetTopology.x[i] == 8) {Gcell[i] = new GranuleCell8(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+    if (NetTopology.x[i] == 9) {Gcell[i] = new GranuleCell9(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+    if (NetTopology.x[i] == 10) {Gcell[i] = new GranuleCell10(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+    if (NetTopology.x[i] == 11) {Gcell[i] = new GranuleCell11(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+    if (NetTopology.x[i] == 12) {Gcell[i] = new GranuleCell12(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+    if (NetTopology.x[i] == 13) {Gcell[i] = new GranuleCell13(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+    if (NetTopology.x[i] == 14) {Gcell[i] = new GranuleCell14(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+    if (NetTopology.x[i] == 15) {Gcell[i] = new GranuleCell15(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+      } 
+    if (NetTopology.x[i] == 16) {Gcell[i] = new GranuleCell16(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+    if (NetTopology.x[i] == 17) {Gcell[i] = new GranuleCell17(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+    if (NetTopology.x[i] == 18) {Gcell[i] = new GranuleCell18(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+    if (NetTopology.x[i] == 19) {Gcell[i] = new GranuleCell19(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+    if (NetTopology.x[i] == 20) { Gcell[i] = new GranuleCell20(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }  
+    if (NetTopology.x[i] == 21) { Gcell[i] = new GranuleCell21(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }   
+
+    if (NetTopology.x[i] == 22) { Gcell[i] = new GranuleCell22(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }   
+    if (NetTopology.x[i] == 23) {Gcell[i] = new GranuleCell23(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }   
+    if (NetTopology.x[i] == 24) { Gcell[i] = new GranuleCell24(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }   
+
+    if (NetTopology.x[i] == 25) {Gcell[i] = new GranuleCell25(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }   
+    if (NetTopology.x[i] == 26) { Gcell[i] = new GranuleCell26(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }   
+
+    if (NetTopology.x[i] == 27) { Gcell[i] = new GranuleCell27(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }   
+    if (NetTopology.x[i] == 28) { Gcell[i] = new GranuleCell28(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }  
+    if (NetTopology.x[i] == 29) { Gcell[i] = new GranuleCell29(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }   
+    if (NetTopology.x[i] == 30) { Gcell[i] = new GranuleCell30(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }     
+    if (NetTopology.x[i] == 31) { Gcell[i] = new GranuleCell31(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }     
+    if (NetTopology.x[i] == 32) { Gcell[i] = new GranuleCell32(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }     
+    if (NetTopology.x[i] == 33) { Gcell[i] = new GranuleCell33(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+    if (NetTopology.x[i] == 34) { Gcell[i] = new GranuleCell34(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }     
+    if (NetTopology.x[i] == 35) { Gcell[i] = new GranuleCell35(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }   
+    if (NetTopology.x[i] == 36) { Gcell[i] = new GranuleCell36(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }  
+    if (NetTopology.x[i] == 37) { Gcell[i] = new GranuleCell37(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }  
+    if (NetTopology.x[i] == 38) {  Gcell[i] = new GranuleCell38(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }  
+    if (NetTopology.x[i] == 39) { Gcell[i] = new GranuleCell39(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }  
+    if (NetTopology.x[i] == 40) { Gcell[i] = new GranuleCell40(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+    if (NetTopology.x[i] == 41) { Gcell[i] = new GranuleCell41(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 42) {  Gcell[i] = new GranuleCell42(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 43) {  Gcell[i] = new GranuleCell43(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 44) { Gcell[i] = new GranuleCell44(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 45) { Gcell[i] = new GranuleCell45(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 46) { Gcell[i] = new GranuleCell46(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 47) { Gcell[i] = new GranuleCell47(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 48) { Gcell[i] = new GranuleCell48(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 49) {  Gcell[i] = new GranuleCell49(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 50) { Gcell[i] = new GranuleCell50(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 51) { Gcell[i] = new GranuleCell51(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 52) {  Gcell[i] = new GranuleCell52(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     }
+     
+     for i=0,499 {
+     if (NetTopology.x[i] == 53) {  Gcell[i] = new GranuleCell53(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+      if (NetTopology.x[i] == 54) {  Gcell[i] = new GranuleCell54(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 55) {  Gcell[i] = new GranuleCell55(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 56) { Gcell[i] = new GranuleCell56(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 57) { Gcell[i] = new GranuleCell57(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 58) { Gcell[i] = new GranuleCell58(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 59) { Gcell[i] = new GranuleCell59(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 60) {  Gcell[i] = new GranuleCell60(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 61) {  Gcell[i] = new GranuleCell61(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 62) { Gcell[i] = new GranuleCell62(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 63) { Gcell[i] = new GranuleCell63(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 64) {  Gcell[i] = new GranuleCell64(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 65) { Gcell[i] = new GranuleCell65(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 66) { Gcell[i] = new GranuleCell66(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 67) {Gcell[i] = new GranuleCell67(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 68) { Gcell[i] = new GranuleCell68(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 69) { Gcell[i] = new GranuleCell69(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 70) {Gcell[i] = new GranuleCell70(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 71) { Gcell[i] = new GranuleCell71(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 72) { Gcell[i] = new GranuleCell72(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 73) { Gcell[i] = new GranuleCell73(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 74) { Gcell[i] = new GranuleCell74(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 75) {  Gcell[i] = new GranuleCell75(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 76) {  Gcell[i] = new GranuleCell76(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 77) { Gcell[i] = new GranuleCell77(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 78) {  Gcell[i] = new GranuleCell78(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 79) { Gcell[i] = new GranuleCell79(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 80) {  Gcell[i] = new GranuleCell80(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     }
+     
+     for i=0,499 {
+      if (NetTopology.x[i] == 81) {Gcell[i] = new GranuleCell81(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 82) { Gcell[i] = new GranuleCell82(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 83) { Gcell[i] = new GranuleCell83(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 84) {Gcell[i] = new GranuleCell84(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 85) { Gcell[i] = new GranuleCell85(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 86) {Gcell[i] = new GranuleCell86(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 87) {Gcell[i] = new GranuleCell87(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 88) { Gcell[i] = new GranuleCell88(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 89) { Gcell[i] = new GranuleCell89(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 90) { Gcell[i] = new GranuleCell90(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 91) { Gcell[i] = new GranuleCell91(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 92) { Gcell[i] = new GranuleCell92(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 93) {  Gcell[i] = new GranuleCell93(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 94) { Gcell[i] = new GranuleCell94(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 95) { Gcell[i] = new GranuleCell95(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 96) {  Gcell[i] = new GranuleCell96(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 97) {  Gcell[i] = new GranuleCell97(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 98) {  Gcell[i] = new GranuleCell98(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 99) { Gcell[i] = new GranuleCell99(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 100) { Gcell[i] = new GranuleCell100(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 101) { Gcell[i] = new GranuleCell101(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 102) {  Gcell[i] = new GranuleCell102(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 103) {  Gcell[i] = new GranuleCell103(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 104) {  Gcell[i] = new GranuleCell104(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 105) { Gcell[i] = new GranuleCell105(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 106) { Gcell[i] = new GranuleCell106(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 107) { Gcell[i] = new GranuleCell107(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 108) { Gcell[i] = new GranuleCell108(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 109) { Gcell[i] = new GranuleCell109(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 110) { Gcell[i] = new GranuleCell110(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 111) {Gcell[i] = new GranuleCell111(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 112) { Gcell[i] = new GranuleCell112(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     }
+     if (NetTopology.x[i] == 113) { Gcell[i] = new GranuleCell113(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+     if (NetTopology.x[i] == 114) { Gcell[i] = new GranuleCell114(Counter.x(NetTopology.x[i]))
+     Counter.x(NetTopology.x[i]) +=1
+     } 
+}
+
+	for i=0, nbcell-1 {Bcell[i] = new BasketCell(i)}
+	for i=0, nmcell-1 {Mcell[i] = new MossyCell(i)}
+	for i=0, nhcell-1 {Hcell[i] = new HIPPCell(i)}
+	for i =0, npp-1 {PPSt[i] = new PPstim(i)}
+
+objref nclist, netcon, cells, net_c, net_d, net_gr,  net_bc,  net_mc,  net_hc,  vbc2gc, vmc2gc, vhc2gc
+{  cells = new List()
+nclist = new List()
+}
+ func cell_append() {cells.append($o1) 
+	return cells.count -1}
+
+func nc_append() {
+
+	if ($3 >= 0 )	{
+		cells.object($1).connect_pre(cells.object($2).pre_list.object($3),netcon)
+		netcon.weight = $4	netcon.delay = $5	netcon.threshold = $6
+	} 
+	nclist.append(netcon)
+	return nclist.count-1
+		}
+
+func is_connected() {local i, c
+	c=0
+	for i=0, nclist.count-1 {
+	net_c= nclist.object(i)
+	if (($o1 == net_c.postcell())  && ($o2 == net_c.precell())) {c=1}
+}
+return c
+}
+
+
+objref vbc2gc, vmc2gc, vhc2gc, vgc2bc, vbc2bc, vmc2bc, vhc2bc, vgc2mc, vbc2mc, vmc2mc, vhc2mc, vgc2hc, vmc2hc,vgc2gc
+
+	{
+	vgc2bc = new Vector(nbcell, 0)
+	vbc2bc = new Vector(nbcell, 0)
+	vmc2bc = new Vector(nbcell, 0)
+	vhc2bc = new Vector(nbcell, 0)
+
+	vgc2mc = new Vector(nmcell, 0)
+	vbc2mc = new Vector(nmcell, 0)
+	vmc2mc = new Vector(nmcell, 0)
+	vhc2mc = new Vector(nmcell, 0)
+
+
+	vgc2hc = new Vector(nhcell, 0)
+	vmc2hc = new Vector(nhcell, 0)
+
+	vbc2gc = new Vector(ngcell, 0)
+	vmc2gc = new Vector(ngcell, 0)
+	vhc2gc = new Vector(ngcell, 0)
+	vgc2gc = new Vector(ngcell, 0)
+	}
+
+
+//initiating randm number generator
+
+objref rdsynb, rdsyna, rdgc2hc, rdgc2bc, rdgc2mc, rdbc2gc, rdbc2bc, rdbc2mc
+objref rdmc2gc1, rdmc2gc2, rdmc2bc, rdmc2mc, rdmc2mc1, rdmc2hc, rdhc2gc, rdhc2bc, rdhc2mc, rdgc2gc
+objref RandUniform, rdm_1 
+ropen("/proc/uptime")		// get a seed  that is changing based on the processing time
+	 {			
+ 	rseed = fscan()		// so simulation will not start with the same seed
+	ropen()		
+	}
+//************************************GC***********************************************
+rdgc2bc = new Random(rseed)			// use for syn.connections 
+proc new_rdgc2bc() {rdgc2bc.discunif(-1,1)}
+new_rdgc2bc()
+rdgc2mc = new Random(rseed)			// use for syn.connections 
+proc new_rdgc2mc() {rdgc2mc.discunif(0,2)}
+new_rdgc2mc()
+rdgc2hc = new Random(rseed)			// use for syn.connections 
+proc new_rdgc2hc() {rdgc2hc.discunif(-2 , 2)}
+new_rdgc2hc()
+rdgc2gc = new Random(rseed)			// use for syn.connections 
+proc new_rdgc2gc() {rdgc2gc.discunif(-50, 50)}
+new_rdgc2gc()
+
+//************************************BC***********************************************
+rdbc2gc = new Random(rseed)			// use for syn.connections 
+proc new_rdbc2gc() {rdbc2gc.discunif(0, ngcell-1)}
+new_rdbc2gc()
+rdbc2bc = new Random(rseed)			// use for syn.connections 
+proc new_rdbc2bc() {rdbc2bc.discunif(ngcell, ngcell+nbcell-1)}
+new_rdbc2bc()
+rdbc2mc = new Random(rseed)			// use for syn.connections 
+proc new_rdbc2mc() {rdbc2mc.discunif(ngcell+nbcell, ngcell+nbcell+nmcell-1)}
+new_rdbc2mc()
+
+//*************************************MC********************************************
+rdmc2gc1 = new Random(rseed)			// use for syn.connections 
+proc new_rdmc2gc1() {rdmc2gc1.discunif(25, 175)}
+new_rdmc2gc1()
+rdmc2gc2 = new Random(rseed)			// use for syn.connections 
+proc new_rdmc2gc2() {rdmc2gc2.discunif(-175, -25)}
+new_rdmc2gc2()
+rdmc2bc = new Random(rseed)			// use for syn.connections 
+proc new_rdmc2bc() {rdmc2bc.discunif(-3,3)}
+new_rdmc2bc()
+rdmc2mc = new Random(rseed)			// use for syn.connections 
+proc new_rdmc2mc() {rdmc2mc.discunif(ngcell+nbcell, ngcell+nbcell+nmcell-1)}
+new_rdmc2mc()
+rdmc2mc1 = new Random(rseed)			// use for syn.connections 
+proc new_rdmc2mc1() {rdmc2mc1.discunif(-3, 3)}
+new_rdmc2mc1()
+rdmc2hc = new Random(rseed)			// use for syn.connections 
+proc new_rdmc2hc() {rdmc2hc.discunif(-2, 2)}
+new_rdmc2hc()
+//*************************************HC********************************************
+
+rdhc2gc = new Random(rseed)			// use for syn.connections 
+proc new_rdhc2gc() {rdhc2gc.discunif(0, ngcell-1)}
+new_rdhc2gc()
+rdhc2bc = new Random(rseed)			// use for syn.connections 
+proc new_rdhc2bc() {rdhc2bc.discunif(ngcell, ngcell+nbcell-1)}
+new_rdhc2bc()
+rdhc2mc = new Random(rseed)			// use for syn.connections 
+proc new_rdhc2mc() {rdhc2mc.discunif(ngcell+nbcell, ngcell+nbcell+nmcell-1)}
+new_rdhc2mc()
+
+//*********************************************************************************
+
+rdsyna = new Random(rseed)		// initialize random distr.
+proc new_rdsyna() {rdsyna.discunif(0, 1)}
+new_rdsyna()
+
+rdsynb = new Random(rseed)		// initialize random distr.
+proc new_rdsynb() {rdsynb.discunif(0, 3)}
+new_rdsynb()
+
+//**************************Sinapse realistic networks*******************************
+
+RandUniform = new Random(rseed) 
+
+
+//	NETWORK INITIATION
+	for i = 0, ngcell-1 {cell_append(Gcell[i])} // cells 0-4 GCs
+	for i = 0, nbcell-1 {cell_append(Bcell[i])} // cells 5-6 BC
+	for i = 0, nmcell-1 {cell_append(Mcell[i])} // cell 7 MC
+	for i = 0, nhcell-1 {cell_append(Hcell[i])} // cell 8 HC
+	for i = 0, npp-1 {cell_append(PPSt[i])}	// cell 9 PP
+
+
+//**************Preforant Path  synaptic connections ******************************
+proc initNet() { local i,j,k,l/*, contador8, contador2b*/
+
+// contador8 = 0
+for i=0, npp-1 {
+	for j=0, 99 {	//ngcell-1{
+	// Cada dendrito de cada neurônio recebe sinais do PP
+	for k=0, NumOfDD.x[NetTopology.x[j]] {
+// 	
+		  
+// 	print 	 "Random number ", Randomizer.x[NumOfDD.x[NetTopology.x[j]]], "j ", j
+	nc_append(i+ngcell+nbcell+nmcell+nhcell, j, k, 2e-2, 3, 10)  
+	}
+	}
+	}
+
+	for j=0, 0 { 	// 15% of MCs have OML dendrites
+	 npost = rdmc2mc.repick()
+	dbr = rdsynb.repick()
+	if ((is_connected(MossyCell[npost-ngcell-nbcell], PPstim[0]) == 0) && (npost < ngcell+nbcell+3)) {
+	nc_append(ngcell+nbcell+nmcell+nhcell, npost, dbr, 0.5e-2, 3, 10)  // Gcell[3] to Bcell[1]
+// 	print npost, dbr
+	} else {	j -= 1	print "pp2mc"}
+	}
+
+// }
+//******************************************************************************************
+
+//**************Granule Cell post synaptic connections ******************************
+
+
+for  i=0, ngcell-1 {
+
+	for j=0, 1 {
+
+	if (i < 84) { a=0}
+	if ((i > 83) && (i < 166)) { a=1}
+	if ((i > 165) && (i < 252)) { a=2}
+	if ((i > 251) && (i < 336)) { a=3}
+	if ((i > 335) && (i < 420)) { a=4}
+	if ((i > 419) && (i < 500)) { a=5}
+
+	 Gauz3 = rdgc2bc.repick()
+	if (a+Gauz3 > 5) {npost = a+Gauz3-6 }
+	if (a+Gauz3 < 0) {npost = a+Gauz3+6} 
+	if ((a+Gauz3 > -1) && (a+Gauz3 < 6)) {npost = a+Gauz3}
+	dbr = rdsynb.repick()
+// 	print npost, a
+	// Basket to Granule
+	if ((is_connected(BasketCell[npost], Gcell[i]) == 0) && (vgc2bc.x[npost] < 180))  {
+	nc_append(i, ngcell+npost, dbr+2, 4.7e-3, .8, 10)  // Gcell[3] to Bcell[1]
+	
+// 	print i, npost, dbr+2
+	vgc2bc.x[npost]  +=1
+	} else {j -= 1	/*print "sdtf"*/}
+	}
+
+	for j=0, 0 {
+	if (i < 100) { a=0}
+	if ((i > 99) && (i < 200)) { a=1}
+	if ((i > 199) && (i < 300)) { a=2}
+	if ((i > 299) && (i < 400)) { a=3}
+	if ((i > 399) && (i < 500)) { a=4}
+	b=a*3
+	 npost = rdgc2mc.repick()
+	dbr = rdsynb.repick()
+//	print npost, b
+	// MC to granule
+	if ((is_connected(MossyCell[npost+b], Gcell[i]) == 0) && (vgc2mc.x[npost+b] < 38)){
+	nc_append(i, ngcell+nbcell+npost+b, dbr+4, 0.2e-3, 1.5, 10)  // Gcell[3] to Bcell[1]
+// 	print npost+b, dbr+4
+	vgc2mc.x[npost+b] +=1
+	} else {	j -= 1	/*print "mdtf"*/}
+	}
+
+	for j=0, 2 {
+	if (i < 84) { a=0}
+	if ((i > 83) && (i < 166)) { a=1}
+	if ((i > 165) && (i < 252)) { a=2}
+	if ((i > 251) && (i < 336)) { a=3}
+	if ((i > 335) && (i < 420)) { a=4}
+	if ((i > 419) && (i < 500)) { a=5}
+	 Gauz3 = rdgc2hc.repick()
+	if (a+Gauz3 > 5) {npost = a+Gauz3-6 }
+	if (a+Gauz3 < 0) {npost = a+Gauz3+6} 
+	if ((a+Gauz3 > -1) && (a+Gauz3 < 6)) {npost = a+Gauz3}
+	dbr = rdsynb.repick()
+	// HIPP to Granule
+	if ((is_connected(HIPPCell[npost], Gcell[i]) == 0) && (vgc2hc.x[npost] < 270)) {
+	nc_append(i, ngcell+nbcell+nmcell+npost, dbr, 0.5e-3, 1.5, 10)  // Gcell[3] to Bcell[1]
+// 	print npost, dbr
+	vgc2hc.x[npost] +=1
+	} else {j -= 1	/*print "hhhh"*/}
+	}
+	// 10% sprouting = 10 cells connections
+	for j=0, 10  {
+	 Gauz3 = rdgc2gc.repick()
+//print Gauz3
+	if (i+Gauz3 > 499) {npost = i+Gauz3-500 }
+	if (i+Gauz3 < 0) {npost = i+Gauz3+500} 
+	if ((i+Gauz3 > -1) && (i+Gauz3 < 500)) {npost = i+Gauz3}
+
+	// granule to sprout
+// 	for j=0, NumOfPD.x[NetTopology.x[j]]/3  {
+	// Spine loss represented as a lost connection
+	
+// 	print "npost", npost
+	SpineLossOdds = rdsynb.repick()
+	if ((NetTopology.x[npost] < 41) && (SpineLossOdds == 0) && (SpineLossEnable == 1)) {
+	  j -= 1  
+	  contador2b += 1
+	  print "contador2b ", contador2b, "SPINE LOSS Gcell"
+	  if (contador2b > 5000) {
+	    print "Please try again, the network connections were not completed."
+	    stop
+	  }
+	  
+        } else {  
+	dbr = rdsyna.repick()
+	
+	      if ((is_connected(Gcell[npost], Gcell[i]) == 0) && (vgc2gc.x[npost] < 15)) {
+      // 	  for k=0, NumOfPD.x[NetTopology.x[npost]]/2 {
+		Randomizer.x[1] = 0
+		for l=2, 35 {
+		  Alea = RandUniform.repick() 
+		  Numero = abs(Alea) - int(abs(Alea))
+		  Randomizer.x[l] = 1 + (int(Numero * ((l - 1) + 1)))
+		  Randomizer.x[l] -= 1
+		
+		}
+      // 		nc_append(i, npost, Randomizer.x[NumOfPD.x[NetTopology.x[npost]]] + (NumOfDD.x[NetTopology.x[npost]]*2) + NumOfPD.x[NetTopology.x[npost]] + 1, 2e-3, .8, 10) // original value 
+		      
+		      nc_append(i, npost, Randomizer.x[NumOfPD.x[NetTopology.x[npost]]] + (NumOfDD.x[NetTopology.x[npost]]*2) + NumOfPD.x[NetTopology.x[npost]] + 1, 2e-3, .8, 10)  // Gcell[3] to Bcell[1]
+      //       	  print i, npost, dbr+8
+		      
+      // 	  }
+		vgc2gc.x[npost] +=1
+	      
+	      } else {j -= 1	
+      // 	  print "gc2gc" 
+      // 	  print "origen", i, "destino", npost
+		Counter8 += 1
+		if  (Counter8 > NumOfPD.x[NetTopology.x[j]]) {
+		  Gauz3 = rdgc2gc.repick()
+		  if (i+Gauz3 > 499) {npost = i+Gauz3-500 }
+		  if (i+Gauz3 < 0) {npost = i+Gauz3+500} 
+		  if ((i+Gauz3 > -1) && (i+Gauz3 < 500)) {npost = i+Gauz3}
+		  Counter8 = 0
+		}
+	      }
+	
+	  
+	}
+	}
+}
+//******************************************************************************************
+
+//**************Basket Cell post synaptic connections ******************************
+
+
+
+for  i=0, nbcell-1 {
+	
+		for j=0, 99 {
+	 npost = rdbc2gc.repick()
+	 Sinapsis = (NumOfDD.x[NetTopology.x[npost]] * 2) +  NumOfPD.x[NetTopology.x[npost]] 
+	// Granule to BC
+	if ((is_connected(Gcell[npost], BasketCell[i]) == 0) && (vbc2gc.x[npost] < 2)) {
+	nc_append(i+ngcell, npost, Sinapsis, 1.6e-3, .85, 10)  // Gcell[3] to Bcell[1]
+	vbc2gc.x[npost] +=1
+// 	print i, npost, 6, "aqui"
+	} else {j -= 1	print "BC2GC"}
+	}
+
+	for j=0, 1 {
+	 npost = rdbc2bc.repick()
+	dbr = rdsyna.repick()
+	if ((is_connected(BasketCell[npost-ngcell], BasketCell[i]) == 0) && (vbc2bc.x[npost-ngcell] < 3)) {
+	nc_append(i+ngcell, npost, dbr+8, 7.6e-3, .8, 10)  // Gcell[3] to Bcell[1]
+// 	print npost, dbr+8
+	vbc2bc.x[npost-ngcell] +=1
+	} else {j -= 1	print "bc2bc"}
+	}
+
+	for j=0, 4 {
+	 npost = rdbc2mc.repick()
+	if ((is_connected(MossyCell[npost-ngcell-nbcell], BasketCell[i]) == 0) && (vbc2mc.x[npost-ngcell-nbcell] < 3)) {
+	nc_append(i+ngcell, npost, 12, 1.5e-3, 1.5, 10)  // Gcell[3] to Bcell[1]
+// 	print npost, 12
+	vbc2mc.x[npost-ngcell-nbcell] +=1
+	} else {	j -= 1	print "bc2mc"}
+	}
+
+
+}
+//******************************************************************************************
+
+//**************Mossy Cell post synaptic connections ******************************
+
+}
+
+proc initNet2() { local i,j,k, contador1, contador2, contador2b, contador3, contador4, contador5, contador6, contador7
+
+contador1 = 0
+contador2 = 0
+contador2b = 0
+contador3 = 0
+contador4 = 0
+contador5 = 0
+contador6 = 0
+contador7 = 0
+
+for  i=0, nmcell-1 {
+	if (i < 3) { y=0}
+	if ((i > 2) && (i < 6)) { y=1}
+	if ((i > 5) && (i < 9)) { y=2}
+	if ((i > 8) && (i < 12)) { y=3}
+	if ((i > 11) && (i < 15)) { y=4}
+	
+	for j=0, 99 {
+	 Gauz1 = rdmc2gc1.repick()
+// print Gauz1
+	if (i*33+17+Gauz1 > 499) {
+	 npost1 = i*33+17+Gauz1-500
+	} else {npost1 =i*33+17+Gauz1}
+	
+// 	print "npost1", npost1
+	
+	SpineLossOdds = rdsynb.repick()
+	if ((NetTopology.x[npost1] < 41) && (SpineLossOdds == 0) && (SpineLossEnable == 1)) {
+	
+	  j -= 1 
+	  contador2b += 1
+	  print "contador2b ", contador2b, "SPINE LOSS Mossy"
+	  if (contador2b > 5000) {
+	    print "Please try again, the network connections were not completed."
+	    stop
+	  }    
+	  } else { 
+
+// 	// -----------------  MC  to GC
+	if ((is_connected(Gcell[npost1], MossyCell[i]) == 0) && (vmc2gc.x[npost1] < 7))  {
+// 	  for k=0, NumOfPD.x[NetTopology.x[npost1]]/4 {
+	    Randomizer.x[1] = 0
+	    
+	   for l=2, 35 {
+	    Alea = RandUniform.repick() 
+	    Numero = abs(Alea) - int(abs(Alea))
+	    Randomizer.x[l] = 1 + (int(Numero * ((l - 1) + 1)))
+	    	   
+	    }	  
+	    
+	nc_append(i+ngcell+nbcell, npost1, Randomizer.x[NumOfPD.x[NetTopology.x[npost1]]] + NumOfDD.x[NetTopology.x[npost1]], 0.3e-3, 3, 10)  // Gcell[3] to Bcell[1]
+	
+	  print "MC2GC"
+// 	  }
+	vmc2gc.x[npost1] +=1
+	print i, npost1, dbr+2
+	} else {j -= 1	
+	  print "MC2GC1"
+	  contador1 += 1 
+	  print "contador1 ", contador1
+	  if (contador1 > 5000) {
+	    stop
+	  }
+	}
+	
+	  
+	}
+// 	}
+	}
+	for j=0, 99 {
+	 Gauz2 = rdmc2gc2.repick()
+
+//print Gauz2
+	if (i*33+17+Gauz2 < 0) {
+	 npost2 =i*33+17+Gauz2+500
+	} else {npost2 =i*33+17+Gauz2}
+	
+	
+	SpineLossOdds = rdsynb.repick()
+	if ((NetTopology.x[npost2] < 41) && (SpineLossOdds == 0) && (SpineLossEnable == 1)) {
+	  j -= 1 
+	  contador2b += 1
+	  print "contador2b ", contador2b, "SPINE LOSS Mossy 2"
+	  if (contador2b > 5000) {
+	    print "Please try again, the network connections were not completed."
+	    stop
+	  }	  
+	} else {  
+
+	dbr = rdsyna.repick()
+	// granule to MC
+	
+	if ((is_connected(Gcell[npost2], MossyCell[i]) == 0) && (vmc2gc.x[npost2] < 7))  {
+// 	  for k=0, NumOfPD.x[NetTopology.x[npost2]]/4 {
+	        Randomizer.x[1] = 0
+
+	 for l=2, 35 {
+	    Alea = RandUniform.repick() 
+	    Numero = abs(Alea) - int(abs(Alea))
+	    Randomizer.x[l] = 1 + (int(Numero * ((l - 1) + 1)))
+	    
+	}
+	nc_append(i+ngcell+nbcell, npost2, Randomizer.x[NumOfPD.x[NetTopology.x[npost2]]] + NumOfDD.x[NetTopology.x[npost2]], 0.3e-3, 3, 10)  // Gcell[3] to Bcell[1]
+// 	  }
+	 
+	vmc2gc.x[npost2] +=1
+	print "GC2MC", i, npost2, dbr+2
+	} else {j -= 1	
+	  print "MC2GC2"
+	  contador2 += 1
+	  print "contador2 ", contador2
+	  if (contador2 > 5000) {
+	    stop
+	  }
+	}
+	
+	  
+	  
+	}
+	}
+
+	for j=0, 0 {
+	 Gauz3 = rdmc2bc.repick()
+	if (y+Gauz3 > 5) {npost = y+Gauz3-6}
+	if (y+Gauz3 < 0) {npost = y+Gauz3+6} 
+	if ((y+Gauz3 > -1) && (y+Gauz3 < 6)) {npost = y+Gauz3}
+	dbr = rdsyna.repick()
+	if ((is_connected(BasketCell[npost], MossyCell[i]) == 0) && (vmc2bc.x[npost] < 4) && (Gauz3 !=0)) {
+	nc_append(i+ngcell+nbcell, ngcell+npost, dbr+6, 0.3e-3, 3, 10)  // Gcell[3] to Bcell[1]
+// 	print npost, dbr+6
+	vmc2bc.x[npost] += 1
+	} else {j -= 1	print "mc2bc"}
+	}
+
+	for j=0, 2 {
+	 Gauz3 = rdmc2mc1.repick()
+//print Gauz3
+	if (i+Gauz3 > 14) {npost = i+Gauz3-15 }
+	if (i+Gauz3 < 0) {npost = i+Gauz3+15} 
+	if ((i+Gauz3 >-1) && (i+Gauz3 < 15)) {npost = i+Gauz3}
+//print npost
+	dbr = rdsynb.repick()
+	if ((is_connected(MossyCell[npost], MossyCell[i]) == 0) && (vmc2mc.x[npost] < 4) && (Gauz3 != 0))  {
+	nc_append(i+ngcell+nbcell, npost+ngcell+nbcell, dbr+8, 0.5e-3, 2, 10)  // Gcell[3] to Bcell[1]
+// 	print npost, dbr+8
+	vmc2mc.x[npost] +=1
+	} else {	j -= 1	
+	  print "mc2mc"
+	  contador4 += 1 
+	  print "contador4 ", contador4
+	  if (contador4 > 5000) {
+	    stop
+	  }
+	  
+	}
+	}
+
+	for j=0, 1 {
+	 Gauz3 = rdmc2hc.repick()
+	if (y+Gauz3 > 5) {npost = y+Gauz3-6}
+	if (y+Gauz3 < 0) {npost = y+Gauz3+6} 
+	if ((y+Gauz3 > -1) && (y+Gauz3 < 6)) {npost = y+Gauz3}
+	dbr = rdsynb.repick()
+	if ((is_connected(HIPPCell[npost], MossyCell[i]) == 0) && (vmc2hc.x[npost] < 6) && (Gauz3 != 0))  {
+	nc_append(i+ngcell+nbcell, ngcell+nbcell+nmcell+npost, dbr+4, 0.2e-3, 3, 10)  // Gcell[3] to Bcell[1]
+// 	print npost, dbr+4
+	vmc2hc.x[npost] +=1
+	} else {	j -= 1	
+	  print y, Gauz3, "mc2hc"
+	  contador3 += 1
+	  print "contador3 ", contador3
+	  if (contador3 > 5000) {
+	    stop
+	  }
+	}
+	}
+
+
+}
+//******************************************************************************************
+//**************HIPP Cell post synaptic connections ******************************
+}
+proc initNet3() { local i,j,l, contador1, contador2, contador2b, contador3, contador4, contador5, contador6, contador7
+
+for  i=0, nhcell-1 {
+	
+		for j=0, 159 {
+	 npost = rdhc2gc.repick()
+	// For newborn cells, the odds of receive a connection is a half
+	SpineLossOdds = rdsynb.repick()
+	if ((NetTopology.x[npost] < 41) && (SpineLossOdds == 0) && (SpineLossEnable == 1)) {
+	 j -= 1 
+	  contador2b += 1
+	  print "contador2b ", contador2b, "SPINE LOSS Hipp"
+	  if (contador2b > 5000) {
+	    print "Please try again, the network connections were not completed."
+	    stop
+	  }  
+	  } else {
+	
+	dbr = rdsyna.repick()
+	// Granule to HIPP
+	if ((is_connected(Gcell[npost], HIPPCell[i]) == 0) && (vhc2gc.x[npost] < 7))  {
+// 	  for k=0, NumOfDD.x[NetTopology.x[npost]]/4 {
+	        Randomizer.x[1] = 0
+
+	     for l=2, 35 {
+	    Alea = RandUniform.repick() 
+	    Numero = abs(Alea) - int(abs(Alea))
+	    Randomizer.x[l] = 1 + (int(Numero * ((l - 1) + 1)))
+	    
+	     }
+	     
+	    
+	nc_append(i+ngcell+nbcell+nmcell, npost, Randomizer.x[NumOfDD.x[NetTopology.x[npost]]] + NumOfDD.x[NetTopology.x[npost]] + NumOfPD.x[NetTopology.x[npost]] , 0.5e-3, 1.6, 10)  // Gcell[3] to Bcell[1]
+// 	  }
+// 	print "HIP2GC", i, npost, dbr+4
+	  
+	vhc2gc.x[npost] +=1  
+	} else {j -= 1	
+	  print "HC2GC"
+	  contador5 += 1 
+	  print "contador5 ", contador5
+	  if (contador5 > 5000) {
+	    stop
+	  }
+	}
+	
+	}
+	}
+
+	for j=0, 3 {
+	 npost = rdhc2bc.repick()
+	dbr = rdsyna.repick()
+	if ((is_connected(BasketCell[npost-ngcell], HIPPCell[i]) == 0) && (vhc2bc.x[npost-ngcell] < 5))  {
+	nc_append(i+ngcell+nbcell+nmcell, npost, dbr+10, 0.5e-3, 1.6, 10)  // Gcell[3] to Bcell[1]
+// 	print npost, dbr+10
+	vhc2bc.x[npost-ngcell] += 1
+	} else {j -= 1	
+	  print "hc2bc"
+	  contador6 += 1 
+	  print "contador6 ", contador6
+	  if (contador6 > 5000) {
+	    stop
+	  }
+	}
+	}
+
+	for j=0, 3 {
+	 npost = rdhc2mc.repick()
+	dbr = rdsynb.repick()
+	if ((is_connected(MossyCell[npost-ngcell-nbcell], HIPPCell[i]) == 0) && (vhc2mc.x[npost-ngcell-nbcell] < 2))  {
+	nc_append(i+ngcell+nbcell+nmcell, npost, dbr+13, 1.5e-3, 1, 10)  // Gcell[3] to Bcell[1]
+// 	print npost, dbr+13
+	vhc2mc.x[npost-ngcell-nbcell] += 1
+	} else {	j -= 1	
+	  print "hc2mc"
+	  contador7 += 1 
+	  print "contador7 ", contador7
+	  if (contador7 > 5000) {
+	    stop
+	  }
+	  
+	}
+	}
+
+}
+}
+//*********************************Print out Net cons*********************************************************
+strdef strvar
+objref dfile
+dfile = new File()
+
+proc saveNet(){ local i
+	dfile.wopen("N2I10sp")
+	dfile.printf("Precell \tpstcell \t Synapse \n")
+	for i=0, nclist.count-1 {
+	dfile.printf("%s\t%s\t%s\n", nclist.object[i].precell, nclist.object[i].postcell, nclist.object[i].syn)}
+
+dfile.printf("TO BC\n GC \tBC \tMC \tHC \n")
+for i= 0, nbcell-1 {dfile.printf("%d\t%d\t%d\t%d \n",  vgc2bc.x[i], vbc2bc.x[i], vmc2bc.x[i], vhc2bc.x[i])}
+dfile.printf("TO MC\n GC \tBC \tMC \tHC \n")
+for i= 0, nmcell-1 {dfile.printf("%d\t%d\t%d\t%d\n",  vgc2mc.x[i], vbc2mc.x[i], vmc2mc.x[i], vhc2mc.x[i])}
+dfile.printf("TO HC \n GC\t MC\n")
+for i= 0, nhcell-1 {dfile.printf("%d\t%d\n", vgc2hc.x[i], vmc2hc.x[i])}
+dfile.printf("TO GC\n BC\t MC\t HC\t GC\n")
+for i= 0, ngcell-1 {dfile.printf("%d\t%d\t%d\t%d\n", vbc2gc.x[i], vmc2gc.x[i], vhc2gc.x[i], vgc2gc.x[i])}
+dfile.close()
+
+}
+
+
+//******************************************************************************************
+strdef strmat
+objref efile
+efile = new File()
+
+	efile.wopen("M2I10sp.txt")
+	efile.printf("t\t")
+	for i = 0, 49 {
+	b = i*10
+	efile.printf("%s\t", cells.object[b])}
+	for i = 498, cells.count-2{
+	efile.printf("%s\t", cells.object[i])}
+	efile.printf("\n")
+	efile.close("M2I10sp.txt")
+
+proc sMatrix(){ local  j
+
+	efile.aopen("M2I10sp.txt")
+	efile.printf("%f\t", t)
+	for i = 0, 49 {
+	b = i*10
+	efile.printf("%f\t", cells.object[b].soma.v(0.5))}
+	for j =498, cells.count-2 {
+	efile.printf("%f\t", cells.object[j].soma.v(0.5))}
+	efile.printf("\n")
+	efile.close("M2I10sp.txt")
+}
+
+objref  VmT
+objref VmMat[cells.count-1]
+VmT = new Vector()
+for i=0, cells.count-2 {
+	VmMat[i] = new Vector()
+	}
+
+proc VecMx() { local i
+	VmT.append(t)
+	for i=0, cells.count-2 {
+		VmMat[i].append( cells.object[i].soma.v(0.5))
+		}
+	}
+	
+objref Spike[cells.count-1]
+for i=0, cells.count-2 {
+	Spike[i] = new Vector()
+	}
+strdef Spkstr
+objref dfile
+dfile = new File()
+
+
+proc SpkMx() { local i, j
+	for i=0, cells.count-2 {
+		Spike[i].spikebin(VmMat[i], 0)
+		}
+
+	dfile.wopen("S2I10sp.txt")
+
+	while(k <  VmT.size) {
+	for j = 0, cells.count-2 {
+	if(Spike[j].x[k] != 0) {
+	dfile.printf("%f\t%d\n", VmT.x[k], j)}
+	}
+	k +=1 }
+	dfile.close("S2I10sp.txt")
+	}
+
+
+objref r_plt
+proc initrPlt() {
+	r_plt = new Graph(0)
+	r_plt.size(0, tstop,0, cells.count)
+	r_plt.label(0.95, 0.02, "ms")
+	r_plt.label(0.01, 0.82, "neu")
+	r_plt.view(0,0, tstop, cells.count,320,20,300,230)
+}
+ initrPlt()
+
+proc plotAP() { local i, a
+	a=1
+ 	r_plt.erase()
+	while(j < cells.count-2) {
+	for i = 0, VmT.size-1 {
+	if ((j > ngcell-1)&&(j < ngcell+nbcell-1)) { a=2}
+	if ((j > ngcell+nbcell-1)&&(j < ngcell+nbcell+nmcell-1)) { a=3}
+	if (j > ngcell+nbcell+nmcell-1) { a=4}
+	if (Spike[j].x[i] == 1) {
+	r_plt.mark(VmT.x[i], j, "T", 5, a, 1)}}
+// 	print "Coordenadas"
+// 	print i, j 
+	j+=1}
+	r_plt.flush()
+	}
+
+
+//################################################################################################
+proc init() { local dtsav, temp, secsav
+finitialize(v_init)
+t = -1000
+dtsav = dt
+secondorder =0
+dt= 10
+	// if cvode is on, turn it off to do large fixed step
+temp= cvode.active()
+if (temp!=0) {cvode.active(0)}
+while(t<-100) { fadvance() print t}
+	//restore cvode if reqd
+if (temp!=0) {cvode.active(1)}
+dt = dtsav
+secondorder =2
+t = 0
+if (cvode.active()){
+cvode.re_init()
+}else{
+fcurrent()
+}
+//frecord_init()
+}
+proc continuerun() {local rt
+	eventcount =0
+	eventslow =1
+	stoprun =0
+	if (using_cvode_) {
+	cvode.event($1)
+	}
+	while(t < $1 && stoprun == 0) {
+	step()
+	sMatrix()
+	VecMx()
+	rt = stopsw()
+	if (rt > realtime) {
+		realtime = rt
+		if (!stdrun_quiet) fastflushPlot()
+		doNotify()
+		if (realtime == 2 && eventcount > 50) {
+			eventslow = int(eventcount/50)+1
+		}
+		eventcount = 0
+	}else{
+		eventcount = eventcount +1
+		if ((eventcount%eventslow) == 0) {
+			doEvents()
+		}
+	}
+	}
+	flushPlot()
+}
+
+objectvar save_window_, rvp_
+objectvar scene_vector_[4]
+objectvar ocbox_, ocbox_list_, scene_, scene_list_
+{ocbox_list_ = new List()  scene_list_ = new List()}
+
+{
+xpanel("RunControl", 0)
+v_init = -60
+xvalue("Init","v_init", 1,"stdinit()", 1, 1 )
+xbutton("Init & Run","run()")
+xbutton("Stop","stoprun=1")
+runStopAt = 5
+xvalue("Continue til","runStopAt", 1,"{continuerun(runStopAt) stoprun=1}", 1, 1 )
+runStopIn = 1
+xvalue("Continue for","runStopIn", 1,"{continuerun(t + runStopIn) stoprun=1}", 1, 1 )
+xbutton("Single Step","steprun()")
+t = 0
+xvalue("t","t", 2 )
+tstop = 300	//1500
+xvalue("Tstop","tstop", 1,"tstop_changed()", 0, 1 )
+dt = 0.1
+xvalue("dt","dt", 1,"setdt()", 0, 1 )
+steps_per_ms = 10	//40
+xvalue("Points plotted/ms","steps_per_ms", 1,"setdt()", 0, 1 )
+xpanel(344,321)
+}
+
+
+proc rrun(){
+initNet()
+initNet2()
+initNet3()
+saveNet()
+run()
+SpkMx()
+}
+
+rrun()
+plotAP()
+
+objectvar scene_vector_[1]
+{doNotify()}
+//quit()
+// the below allows modelview to run
+access Gcell[0].soma
+
+// quit()

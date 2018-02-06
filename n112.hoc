@@ -1,0 +1,422 @@
+/* Dentage Gyrus Granule Cell model associated with the papers: 
+
+J. Tejada, G.M. Arisi, N. Garcia-Cairasco, A.C. Roque, Morphological alterations in newly born dentate gyrus granule cells that emerge after status epilepticus contribute to make them less excitable, PLoS ONE. 7 (2012) e40726. doi:10.1371/journal.pone.0040726.
+
+J. Tejada, N. Garcia-Cairasco, A.C. Roque, Combined role of seizure-induced dendritic morphology alterations and spine loss in newborn granule cells with mossy fiber sprouting on the hyperexcitability of a computer model of the dentate gyrus, PLoS Comput. Biol. 10 (2014) e1003601. doi:10.1371/journal.pcbi.1003601.
+
+julian.tejada@gmail.com - 2014  */
+//Defining granule cell
+
+	begintemplate GranuleCell112
+	
+// Original name on neuroMorpho.org gc.CNG.swc
+
+ndend1=21
+
+  
+public  pre_list, connect_pre, subsets, is_art, is_connected
+public  vbc2gc, vmc2gc, vhc2gc, vgc2bc, vbc2bc, vmc2bc, vhc2bc, vgc2mc, vbc2mc, vmc2mc, vhc2mc, vgc2hc, vmc2hc
+public soma, dend
+public all, gcldend, pdend, mdend, ddend
+
+nst=10
+	objectvar stim[nst]
+double stimdur[nst], stimdel[nst], stimamp[nst]
+public stim, stimdur, stimamp, stimdel
+create soma, dend[ndend1]
+objref syn, pre_list
+
+
+proc init() {
+	pre_list = new List()
+	subsets()
+	gctemp()
+	synapse()
+}
+objref all, gcldend, pdend, mdend, ddend
+proc subsets(){ local i
+	objref all, gcldend, pdend, mdend, ddend
+	all = new SectionList()
+		soma all.append()
+		for i=0, 20 dend[i] all.append()
+
+
+	
+	gcldend  = new SectionList()
+		dend[0] gcldend.append()
+		dend[13] gcldend.append()
+
+
+	pdend  = new SectionList()
+		for i=1, 2  dend[i] pdend.append()
+		dend[4] pdend.append()
+		dend[6] pdend.append()
+		dend[10] pdend.append()
+		dend[14] pdend.append()
+		dend[17] pdend.append()
+
+
+	mdend  = new SectionList()
+		for i=7, 8  dend[i] mdend.append()		  
+		for i=11, 12  dend[i] mdend.append()
+		for i=15, 16  dend[i] mdend.append()		  
+		for i=18, 20  dend[i] mdend.append()
+		
+
+		
+
+	ddend  = new SectionList()
+		
+		dend[3] ddend.append()
+		dend[5] ddend.append()
+		dend[9] ddend.append()
+	
+
+}
+proc gctemp() {
+
+    
+	forsec all {
+		insert ccanl
+	catau_ccanl = 10
+	caiinf_ccanl = 0.000005
+	Ra=210
+	}
+
+	soma {insert ichan2  //ildikos ichan
+	gnatbar_ichan2=0.12  //original 0.030 to .055 
+	gkfbar_ichan2=0.016  //original 0.015
+	gksbar_ichan2=0.006
+		insert borgka
+	gkabar_borgka=0.012
+		insert nca  // HAV-N- Ca channel
+	gncabar_nca=0.002  // check to modify- original 0.004
+		insert lca 
+	glcabar_lca=0.005
+		insert cat
+	gcatbar_cat=0.000037
+		insert gskch
+	gskbar_gskch=0.001
+		insert cagk
+	gkbar_cagk=0.0006
+	gl_ichan2 = 0.00004
+	cm=1
+
+} 
+
+		forsec gcldend {insert ichan2
+	gnatbar_ichan2=0.018  //original 0.015
+	gkfbar_ichan2=0.004
+	gksbar_ichan2=0.006
+		insert nca  // HAV-N- Ca channel
+	gncabar_nca=0.003  // check to modify- original 0.004
+		insert lca 
+	glcabar_lca=0.0075
+		insert cat
+	gcatbar_cat=0.000075
+		insert gskch
+	gskbar_gskch=0.0004
+		insert cagk
+	gkbar_cagk=0.0006
+	gl_ichan2 = 0.00004
+	cm=1}
+		
+		forsec pdend {insert ichan2
+	gnatbar_ichan2=0.013 
+	gkfbar_ichan2=0.004
+	gksbar_ichan2=0.006
+		insert nca  // HAV-N- Ca channel
+	gncabar_nca=0.001  // check to modify- original 0.004
+		insert lca 
+	glcabar_lca=0.0075
+		insert cat
+	gcatbar_cat=0.00025
+		insert gskch
+	gskbar_gskch=0.0002
+		insert cagk
+	gkbar_cagk=0.001
+	gl_ichan2 = 0.000063
+	cm=1.0 
+        insert pas 
+      g_pas = 4e-05
+	}
+		
+	 	forsec mdend {insert ichan2
+	gnatbar_ichan2=0.008 
+	gkfbar_ichan2=0.001
+	gksbar_ichan2=0.006
+		insert nca  // HAV-N- Ca channel
+	gncabar_nca=0.001  // check to modify- original 0.004
+		insert lca 
+	glcabar_lca=0.0005
+		insert cat
+	gcatbar_cat=0.0005
+		insert gskch
+	gskbar_gskch=0.0
+		insert cagk
+	gkbar_cagk=0.0024
+	gl_ichan2 = 0.000063
+
+	cm=1.0 
+        insert pas 
+      g_pas = 4e-05}
+
+		forsec ddend {insert ichan2
+	gnatbar_ichan2=0.008 
+	gkfbar_ichan2=0.001
+	gksbar_ichan2=0.008
+		insert nca  // HAV-N- Ca channel
+	gncabar_nca=0.001  // check to modify- original 0.004
+		insert lca 
+	glcabar_lca=0.0
+		insert cat
+	gcatbar_cat=0.001
+		insert gskch
+	gskbar_gskch=0.0
+		insert cagk
+	gkbar_cagk=0.0024
+	gl_ichan2 = 0.000063
+	cm=1.0 
+        insert pas 
+      g_pas = 4e-05}
+		
+	
+// 	forsec all {
+// 		insert ccanl
+// 	catau_ccanl = 10
+// 	caiinf_ccanl = 0.000005
+// 	Ra=210
+// 	}
+
+	 forsec all {enat = 45 ekf = -90 eks = -90  ek=-90  elca=130 etca=130	 esk=-90
+		 el_ichan2 =-70	cao_ccanl=2 }
+		 
+		 
+  connect dend(0), soma(1)
+  for i = 1, 3 connect dend[i](0), dend[i-1](1)
+  connect dend[4](0), dend[2](1)
+  for i = 5, 6 connect dend[i](0), dend[4](1)
+  for i = 7, 8 connect dend[i](0), dend[6](1)
+  connect dend[9](0), dend[1](1)
+  connect dend[10](0), dend(1)
+  for i = 11, 12 connect dend[i](0), dend[10](1)
+  connect dend[13](0), soma(1)
+  for i = 14, 15 connect dend[i](0), dend[i-1](1)
+  connect dend[16](0), dend[14](1)
+  connect dend[17](0), dend[13](1)
+  for i = 18, 19 connect dend[i](0), dend[17](1)
+  connect dend[20](0), dend[13](1)
+  basic_shape()
+}
+proc shape3d_1() {
+  soma {pt3dclear()
+	pt3dadd(1967, 1170, 1430, 10)
+	pt3dadd(1968, 1171, 1430, 0.6)
+  }
+  dend {pt3dclear()
+	pt3dadd(1968, 1171, 1430, 0.6)
+	pt3dadd(1974, 1175, 1430, 0.6)
+  }
+  dend[1] {pt3dclear()
+	pt3dadd(1974, 1175, 1430, 0.6)
+	pt3dadd(1976, 1174, 1430, 0.6)
+	pt3dadd(1976, 1175, 1431, 0.6)
+  }
+  dend[2] {pt3dclear()
+	pt3dadd(1976, 1175, 1431, 0.6)
+	pt3dadd(1976, 1175, 1432, 0.6)
+  }
+  dend[3] {pt3dclear()
+	pt3dadd(1976, 1175, 1432, 0.6)
+	pt3dadd(1983, 1187, 1495, 0.6)
+	pt3dadd(2000, 1224, 1495, 0.6)
+	pt3dadd(1995, 1227, 1495, 0.6)
+	pt3dadd(2032, 1303, 1560, 0.6)
+	pt3dadd(2031, 1300, 1560, 0.6)
+	pt3dadd(2056, 1315, 1625, 0.6)
+  }
+  dend[4] {pt3dclear()
+	pt3dadd(1976, 1175, 1432, 0.6)
+	pt3dadd(1984, 1190, 1495, 0.6)
+	pt3dadd(1983, 1190, 1495, 0.6)
+  }
+  dend[5] {pt3dclear()
+	pt3dadd(1983, 1190, 1495, 0.6)
+	pt3dadd(1971, 1193, 1495, 0.6)
+	pt3dadd(1930, 1228, 1495, 0.6)
+	pt3dadd(1926, 1228, 1495, 0.6)
+	pt3dadd(1918, 1274, 1560, 0.6)
+	pt3dadd(1898, 1283, 1560, 0.6)
+	pt3dadd(1899, 1297, 1560, 0.6)
+	pt3dadd(1901, 1295, 1560, 0.6)
+	pt3dadd(1896, 1324, 1625, 0.6)
+  }
+  dend[6] {pt3dclear()
+	pt3dadd(1983, 1190, 1495, 0.6)
+	pt3dadd(1983, 1191, 1495, 0.6)
+  }
+  dend[7] {pt3dclear()
+	pt3dadd(1983, 1191, 1495, 0.6)
+	pt3dadd(1992, 1244, 1495, 0.6)
+	pt3dadd(1989, 1271, 1495, 0.6)
+	pt3dadd(2010, 1308, 1495, 0.6)
+  }
+  dend[8] {pt3dclear()
+	pt3dadd(1983, 1191, 1495, 0.6)
+	pt3dadd(1999, 1262, 1495, 0.6)
+	pt3dadd(1994, 1296, 1430, 0.6)
+  }
+  dend[9] {pt3dclear()
+	pt3dadd(1976, 1175, 1431, 0.6)
+	pt3dadd(2018, 1203, 1495, 0.6)
+	pt3dadd(2062, 1262, 1495, 0.6)
+	pt3dadd(2062, 1267, 1495, 0.6)
+	pt3dadd(2100, 1303, 1495, 0.6)
+	pt3dadd(2092, 1304, 1495, 0.6)
+	pt3dadd(2146, 1339, 1560, 0.6)
+  }
+  dend[10] {pt3dclear()
+	pt3dadd(1974, 1175, 1430, 0.6)
+	pt3dadd(1954, 1187, 1430, 0.6)
+	pt3dadd(1909, 1206, 1430, 0.6)
+	pt3dadd(1893, 1223, 1430, 0.6)
+	pt3dadd(1893, 1224, 1430, 0.6)
+  }
+  dend[11] {pt3dclear()
+	pt3dadd(1893, 1224, 1430, 0.6)
+	pt3dadd(1882, 1248, 1430, 0.6)
+	pt3dadd(1858, 1263, 1430, 0.6)
+	pt3dadd(1823, 1295, 1365, 0.6)
+  }
+  dend[12] {pt3dclear()
+	pt3dadd(1893, 1224, 1430, 0.6)
+	pt3dadd(1874, 1264, 1365, 0.6)
+	pt3dadd(1875, 1264, 1365, 0.6)
+	pt3dadd(1805, 1315, 1300, 0.6)
+  }
+  dend[13] {pt3dclear()
+	pt3dadd(1968, 1171, 1430, 0.6)
+	pt3dadd(1969, 1172, 1430, 0.6)
+  }
+  dend[14] {pt3dclear()
+	pt3dadd(1969, 1172, 1430, 0.6)
+	pt3dadd(1980, 1182, 1430, 0.6)
+	pt3dadd(1969, 1194, 1430, 0.6)
+	pt3dadd(1966, 1232, 1430, 0.6)
+	pt3dadd(1963, 1256, 1430, 0.6)
+	pt3dadd(1968, 1275, 1430, 0.6)
+	pt3dadd(1967, 1276, 1430, 0.6)
+  }
+  dend[15] {pt3dclear()
+	pt3dadd(1967, 1276, 1430, 0.6)
+	pt3dadd(1962, 1284, 1430, 0.6)
+	pt3dadd(1988, 1314, 1430, 0.6)
+	pt3dadd(1999, 1320, 1430, 0.6)
+	pt3dadd(1998, 1303, 1430, 0.6)
+  }
+  dend[16] {pt3dclear()
+	pt3dadd(1967, 1276, 1430, 0.6)
+	pt3dadd(1959, 1288, 1430, 0.6)
+	pt3dadd(1933, 1315, 1430, 0.6)
+  }
+  dend[17] {pt3dclear()
+	pt3dadd(1969, 1172, 1430, 0.6)
+	pt3dadd(1970, 1173, 1430, 0.6)
+  }
+  dend[18] {pt3dclear()
+	pt3dadd(1970, 1173, 1430, 0.6)
+	pt3dadd(1987, 1188, 1430, 0.6)
+	pt3dadd(2026, 1216, 1430, 0.6)
+	pt3dadd(2105, 1268, 1430, 0.6)
+	pt3dadd(2191, 1307, 1365, 0.6)
+  }
+  dend[19] {pt3dclear()
+	pt3dadd(1970, 1173, 1430, 0.6)
+	pt3dadd(1998, 1199, 1365, 0.6)
+	pt3dadd(2005, 1202, 1365, 0.6)
+	pt3dadd(2029, 1232, 1365, 0.6)
+	pt3dadd(2081, 1263, 1300, 0.6)
+	pt3dadd(2079, 1261, 1300, 0.6)
+	pt3dadd(2110, 1289, 1235, 0.6)
+  }
+  dend[20] {pt3dclear()
+	pt3dadd(1969, 1172, 1430, 0.6)
+	pt3dadd(1979, 1208, 1365, 0.6)
+	pt3dadd(1983, 1209, 1365, 0.6)
+	pt3dadd(2007, 1242, 1365, 0.6)
+	pt3dadd(2022, 1297, 1300, 0.6)
+	pt3dadd(2024, 1296, 1300, 0.6)
+	pt3dadd(2068, 1331, 1235, 0.6)
+  }
+}
+proc basic_shape() {
+  shape3d_1()
+}
+proc connect_pre() {  // $o1 target point process, $o2 returned NetCon
+	soma $o2 = new NetCon (&v(1), $o1)
+	//alternative statement		$o1.soma pre_list.append(new NetCon(soma.v(1),syn,0,Delsyn,0))
+	}
+
+	objref syn
+	objref DistalSynapses 
+	objref DistalSynapsePositions 
+	objref ProximalSynapses 
+	objref ProximalSynapsePositions 
+	proc synapse() { 
+
+	  
+ 
+ // //***** PP syn   
+ 
+DistalSynapses = new Vector(0,0) 
+DistalSynapses .append(3, 5, 9,11,12,18,19,20) 
+DistalSynapsePositions = new Vector(0,0) 
+DistalSynapsePositions .append(0.88315,0.80251,0.86033,0.98817,0.85109,0.91598,  0.901,0.89771) 
+for i= 0 , 7 { 
+dend[DistalSynapses .x[i]] syn = new Exp2Syn(DistalSynapsePositions .x[i]) // PP syn based on Greg and Staley 
+syn.tau1 = 1.5	syn.tau2 = 5.5	syn.e = 0  
+pre_list.append(syn) // # 0  
+} 
+ 
+ // //***** MC syn   
+ 
+ProximalSynapses = new Vector(0,0) 
+ProximalSynapses .append(0, 1, 2, 3, 4, 9,10,13,14,17,18,19,20) 
+ProximalSynapsePositions = new Vector(0,0) 
+ProximalSynapsePositions .append(0.5,    0.5,    0.5,    0.095222,0.41981,    0.090754,0.31227,    0.5,0.28851,    0.5,0.11551,0.11135,0.11217) 
+for i= 0 , 12 { 
+dend[ProximalSynapses .x[i]] syn = new Exp2Syn(ProximalSynapsePositions .x[i]) // // MC syn *** Estimated 
+syn.tau1 = 1.5	syn.tau2 = 5.5	syn.e = 0 
+pre_list.append(syn) // #  
+} 
+ 
+ // //***** HIPP   
+ 
+for i= 0 , 7 { 
+dend[DistalSynapses .x[i]] syn = new Exp2Syn(DistalSynapsePositions .x[i]) // HIPP  
+syn.tau1 = 0.5	syn.tau2 = 6	syn.e = -70 
+pre_list.append(syn) // # 20 
+} 
+ 
+ // //***** BC syn   
+ 
+soma syn = new Exp2Syn(0.5) // BC  syn syn based on Bartos 
+syn.tau1 = 0.26	syn.tau2 = 5.5	syn.e = -70 
+pre_list.append(syn) // # 21 
+ 
+ // //***** Sprout   
+ 
+for i= 0 , 12 { 
+dend[ProximalSynapses .x[i]] syn = new Exp2Syn(ProximalSynapsePositions .x[i]) // // MC syn *** Estimated 
+syn.tau1 = 1.5	syn.tau2 = 5.5	syn.e = 0 
+pre_list.append(syn) // # 21 
+} 
+	  
+	  
+
+
+}
+	func is_art() { return 0 }
+
+	endtemplate GranuleCell112
+//************************************************************************************************************

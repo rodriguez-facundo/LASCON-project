@@ -1,0 +1,530 @@
+/* Dentage Gyrus Granule Cell model associated with the papers: 
+
+J. Tejada, G.M. Arisi, N. Garcia-Cairasco, A.C. Roque, Morphological alterations in newly born dentate gyrus granule cells that emerge after status epilepticus contribute to make them less excitable, PLoS ONE. 7 (2012) e40726. doi:10.1371/journal.pone.0040726.
+
+J. Tejada, N. Garcia-Cairasco, A.C. Roque, Combined role of seizure-induced dendritic morphology alterations and spine loss in newborn granule cells with mossy fiber sprouting on the hyperexcitability of a computer model of the dentate gyrus, PLoS Comput. Biol. 10 (2014) e1003601. doi:10.1371/journal.pcbi.1003601.
+
+julian.tejada@gmail.com - 2014  */
+
+//Defining granule cell
+
+	begintemplate GranuleCell6
+
+// Original name on neuroMorpho.org n06-cont03-sl4.CNG.swc
+
+ndend1=11
+
+  
+public  pre_list, connect_pre, subsets, is_art, is_connected
+public  vbc2gc, vmc2gc, vhc2gc, vgc2bc, vbc2bc, vmc2bc, vhc2bc, vgc2mc, vbc2mc, vmc2mc, vhc2mc, vgc2hc, vmc2hc
+public soma, dend
+public all, gcldend, pdend, mdend, ddend
+
+nst=10
+	objectvar stim[nst]
+double stimdur[nst], stimdel[nst], stimamp[nst]
+public stim, stimdur, stimamp, stimdel
+create soma, dend[ndend1]
+objref syn, pre_list
+
+
+proc init() {
+	pre_list = new List()
+	subsets()
+	gctemp()
+	synapse()
+}
+objref all, gcldend, pdend, mdend, ddend
+proc subsets(){ local i
+	objref all, gcldend, pdend, mdend, ddend
+	all = new SectionList()
+		soma all.append()
+		for i=0, 10 dend[i] all.append()
+
+
+	gcldend  = new SectionList()
+		dend[0] gcldend.append()
+
+
+	pdend  = new SectionList()
+		for i=1, 2  dend[i] pdend.append()
+		dend[4] pdend.append()
+
+
+	mdend  = new SectionList()
+		for i=7, 8  dend[i] mdend.append()
+		
+
+	ddend  = new SectionList()
+		dend[3] ddend.append()
+		for i=5, 6 dend[i] ddend.append()
+		for i=9, 10 dend[i] ddend.append()
+}
+proc gctemp() {
+
+// 	soma {nseg=1 L=16.329 diam=11.165} // changed L & diam
+// 		
+// 	dend [0] {nseg=1  L=20.05632 diam=2.6}
+// 	dend [1] {nseg=1  L=80.78021 diam=1.6478}
+// 	dend [2] {nseg=1  L=10.61434 diam=1.1833}
+// 	dend [3] {nseg=1  L=25.82767 diam=1.0346}
+// 	dend [4] {nseg=1  L=30.89202 diam=0.7664}
+// 	dend [5] {nseg=1  L=43.53635 diam=0.9072}
+// 	dend [6] {nseg=1  L=37.46003 diam=0.9215}
+// 	dend [7] {nseg=1  L=85.47885 diam=0.5756}
+// 	dend [8] {nseg=1  L=121.54242 diam=0.6968}
+// 	dend [9] {nseg=1  L=78.91646 diam=0.6705}
+// 	dend [10] {nseg=1 L=97.50034 diam=0.7203}
+// 	dend [11] {nseg=1 L=19.96318 diam=0.8309}
+// 	dend [12] {nseg=1 L=125.23049 diam=0.5746}
+// 	dend [13] {nseg=1 L=117.23326 diam=0.6059}
+// 	dend [14] {nseg=1 L=31.96199 diam=0.6411}
+// 	dend [15] {nseg=1 L=45.48879 diam=0.6389}
+// 	dend [16] {nseg=1 L=22.50602 diam=0.5591}
+// 	dend [17] {nseg=1 L=37.40208 diam=0.6970}
+// 	dend [18] {nseg=1 L=20.88699 diam=0.6050}
+// 	dend [19] {nseg=1 L=10.10732 diam=0.5985}
+	
+// 	for i = 1, 20	dend [i] {nseg=1 L=150 diam=3}
+
+// 	gcdend2 [0] {nseg=1 L=50 diam=3}
+// 	for i = 1, 3	gcdend2 [i] {nseg=1 L=150 diam=3}	 	
+
+    
+	forsec all {
+		insert ccanl
+	catau_ccanl = 10
+	caiinf_ccanl = 0.000005
+	Ra=210
+	}
+
+	soma {insert ichan2  //ildikos ichan
+	gnatbar_ichan2=0.12  //original 0.030 to .055 
+	gkfbar_ichan2=0.016  //original 0.015
+	gksbar_ichan2=0.006
+		insert borgka
+	gkabar_borgka=0.012
+		insert nca  // HAV-N- Ca channel
+	gncabar_nca=0.002  // check to modify- original 0.004
+		insert lca 
+	glcabar_lca=0.005
+		insert cat
+	gcatbar_cat=0.000037
+		insert gskch
+	gskbar_gskch=0.001
+		insert cagk
+	gkbar_cagk=0.0006
+	gl_ichan2 = 0.00004
+	cm=1
+
+} 
+
+		forsec gcldend {insert ichan2
+	gnatbar_ichan2=0.018  //original 0.015
+	gkfbar_ichan2=0.004
+	gksbar_ichan2=0.006
+		insert nca  // HAV-N- Ca channel
+	gncabar_nca=0.003  // check to modify- original 0.004
+		insert lca 
+	glcabar_lca=0.0075
+		insert cat
+	gcatbar_cat=0.000075
+		insert gskch
+	gskbar_gskch=0.0004
+		insert cagk
+	gkbar_cagk=0.0006
+	gl_ichan2 = 0.00004
+	cm=1}
+		
+		forsec pdend {insert ichan2
+	gnatbar_ichan2=0.013 
+	gkfbar_ichan2=0.004
+	gksbar_ichan2=0.006
+		insert nca  // HAV-N- Ca channel
+	gncabar_nca=0.001  // check to modify- original 0.004
+		insert lca 
+	glcabar_lca=0.0075
+		insert cat
+	gcatbar_cat=0.00025
+		insert gskch
+	gskbar_gskch=0.0002
+		insert cagk
+	gkbar_cagk=0.001
+	gl_ichan2 = 0.000063
+	cm=1.0 
+        insert pas 
+      g_pas = 4e-05
+	}
+		
+	 	forsec mdend {insert ichan2
+	gnatbar_ichan2=0.008 
+	gkfbar_ichan2=0.001
+	gksbar_ichan2=0.006
+		insert nca  // HAV-N- Ca channel
+	gncabar_nca=0.001  // check to modify- original 0.004
+		insert lca 
+	glcabar_lca=0.0005
+		insert cat
+	gcatbar_cat=0.0005
+		insert gskch
+	gskbar_gskch=0.0
+		insert cagk
+	gkbar_cagk=0.0024
+	gl_ichan2 = 0.000063
+
+	cm=1.0 
+        insert pas 
+      g_pas = 4e-05}
+
+		forsec ddend {insert ichan2
+	gnatbar_ichan2=0.008 
+	gkfbar_ichan2=0.001
+	gksbar_ichan2=0.008
+		insert nca  // HAV-N- Ca channel
+	gncabar_nca=0.001  // check to modify- original 0.004
+		insert lca 
+	glcabar_lca=0.0
+		insert cat
+	gcatbar_cat=0.001
+		insert gskch
+	gskbar_gskch=0.0
+		insert cagk
+	gkbar_cagk=0.0024
+	gl_ichan2 = 0.000063
+	cm=1.0 
+        insert pas 
+      g_pas = 4e-05}
+		
+	
+// 	connect dend[0](0), soma(1)
+// 	connect gcdend2[0](0), soma(1)
+// 	for i=1,3 {
+// 	connect dend[i](0), dend[i-1](1)
+// 	}
+// 	for i=1,3 {
+// 	connect gcdend2[i](0), gcdend2[i-1](1)
+// 	}
+connect dend(0), soma(1)
+  for i = 1, 2 connect dend[i](0), dend(1)
+  for i = 3, 4 connect dend[i](0), dend[1](1)
+  for i = 5, 6 connect dend[i](0), dend[3](1)
+  for i = 7, 8 connect dend[i](0), dend[4](1)
+  for i = 9, 10 connect dend[i](0), dend[5](1)
+basic_shape()
+	    
+
+// 	  connect axon(1), soma(0)
+
+
+	forsec all {enat = 45 ekf = -90 eks = -90  ek=-90  elca=130 etca=130	 esk=-90
+		 el_ichan2 =-70
+
+		cao_ccanl=2 }  // make catau slower70e-3 	cao=2 cai=50.e-6 
+
+// current injection
+//for i=0,0 {
+//stimdel[i]=500
+//stimdur[i]=200
+//stimamp[i]=0.2
+
+//soma stim[i] = new IClamp(0.5)
+//stim.del[i]=stimdel[i]
+//stim.dur[i]=stimdur[i]
+//stim.amp[i]=stimamp[i]
+//}
+
+}
+
+
+proc shape3d_1() {
+//   axon {pt3dclear() 
+//         pt3dadd(-0.1761, -38, 0, 0.2) 
+//         pt3dadd(-0.1761, -18, 0, 10)
+//   }
+//   
+  soma {pt3dclear()
+// 	pt3dadd(-0.121, -0.4145, 0.01, 10.45)
+	pt3dadd(-0.1761, -18, 0, 10)
+	pt3dadd(-0.1761, -0.445, 0, 7.283)
+  }
+  dend {pt3dclear()
+	pt3dadd(-0.1761, -0.445, 0, 7.283)
+	pt3dadd(0.09, -5.7, 0, 2.13)
+	pt3dadd(0.19, -8.09, -0.59, 1.95)
+	pt3dadd(-0.09, -10.02, -1.49, 1.76)
+	pt3dadd(-0.74, -11.49, -1.51, 1.86)
+	pt3dadd(-1.39, -12.59, -1.51, 2.23)
+  }
+  dend[1] {pt3dclear()
+	pt3dadd(-1.39, -12.59, -1.51, 2.23)
+	pt3dadd(-0.95, -14.24, -1.81, 1.48)
+	pt3dadd(0.16, -15.34, -2.09, 1.3)
+	pt3dadd(0.81, -16.63, -2.33, 1.11)
+	pt3dadd(1.09, -17.73, -1.95, 1.11)
+	pt3dadd(1.55, -19.93, -2.31, 1.11)
+	pt3dadd(1.83, -21.5, -2.59, 1.11)
+	pt3dadd(2.11, -22.69, -2.64, 1.3)
+	pt3dadd(2.67, -23.61, -4.13, 1.76)
+	pt3dadd(3.04, -24.71, -4.13, 1.86)
+	pt3dadd(3.13, -25.45, -4.47, 2.04)
+  }
+  dend[2] {pt3dclear()
+	pt3dadd(-1.39, -12.59, -1.51, 2.23)
+	pt3dadd(-2.78, -12.41, -0.66, 1.48)
+	pt3dadd(-3.99, -11.77, -0.75, 0.74)
+	pt3dadd(-6.31, -11.31, -1.05, 0.65)
+	pt3dadd(-8.53, -10.94, -1.54, 0.65)
+	pt3dadd(-10.57, -11.21, -1.66, 0.65)
+	pt3dadd(-13.08, -10.48, -2.27, 0.65)
+	pt3dadd(-15.21, -10.39, -2.19, 0.65)
+	pt3dadd(-16.7, -9.65, -2.85, 0.56)
+	pt3dadd(-17.62, -9.08, -3.43, 0.56)
+	pt3dadd(-19.2, -8.07, -4.57, 0.56)
+	pt3dadd(-20.78, -7.79, -4.81, 0.56)
+	pt3dadd(-22.82, -7.89, -4.88, 0.56)
+	pt3dadd(-24.86, -7.43, -4.88, 0.56)
+	pt3dadd(-26.25, -6.97, -5.05, 0.56)
+	pt3dadd(-27.73, -6.51, -4.56, 0.56)
+	pt3dadd(-29.59, -5.5, -4.56, 0.56)
+	pt3dadd(-31.07, -4.94, -5.38, 0.56)
+	pt3dadd(-32.46, -3.84, -5.38, 0.56)
+  }
+  dend[3] {pt3dclear()
+	pt3dadd(3.13, -25.45, -4.47, 2.04)
+	pt3dadd(1.82, -26.28, -0.13, 1.21)
+	pt3dadd(0.98, -27.57, 0.06, 0.93)
+	pt3dadd(0.24, -29.04, 0.06, 0.74)
+	pt3dadd(-0.32, -30.24, -0.02, 0.74)
+	pt3dadd(-0.6, -32.53, -0.02, 0.93)
+	pt3dadd(-1.15, -33.82, 0.51, 0.93)
+	pt3dadd(-1.43, -35.38, 0.51, 0.83)
+	pt3dadd(-1.9, -36.76, 0.23, 1.02)
+	pt3dadd(-1.99, -37.77, 0.99, 0.83)
+	pt3dadd(-1.34, -39.24, 0.99, 0.74)
+	pt3dadd(-1.15, -40.81, 0.88, 0.83)
+	pt3dadd(-1.06, -42.28, 1.28, 0.83)
+	pt3dadd(-1.52, -43.84, 1.28, 0.83)
+	pt3dadd(-1.59, -45.03, 1.08, 0.83)
+	pt3dadd(-2.24, -46.87, 1.03, 0.83)
+	pt3dadd(-2.98, -48.8, 1.28, 0.83)
+	pt3dadd(-3.53, -50.27, 1.01, 1.02)
+	pt3dadd(-3.91, -51.65, 1.51, 0.93)
+	pt3dadd(-4.28, -53.03, 1.61, 0.83)
+	pt3dadd(-5.2, -55.05, 1.7, 0.83)
+	pt3dadd(-5.76, -55.97, 2.61, 0.65)
+	pt3dadd(-6.22, -57.72, 2.18, 0.65)
+	pt3dadd(-5.95, -59.19, 3.05, 0.65)
+	pt3dadd(-6.04, -60.94, 3.43, 0.74)
+	pt3dadd(-6.13, -62.13, 3.43, 0.74)
+	pt3dadd(-6, -63.69, 3.43, 0.83)
+	pt3dadd(-6, -65.9, 3.95, 0.74)
+	pt3dadd(-5.91, -67.55, 3.95, 0.74)
+	pt3dadd(-6, -69.39, 3.95, 0.83)
+	pt3dadd(-6.09, -70.77, 3.36, 0.74)
+	pt3dadd(-6, -72.15, 3.36, 0.74)
+	pt3dadd(-6.28, -73.9, 3.81, 0.74)
+	pt3dadd(-6, -75.37, 3.81, 0.65)
+	pt3dadd(-6.37, -76.56, 3.81, 0.83)
+	pt3dadd(-6.19, -77.76, 3.92, 0.74)
+	pt3dadd(-6.09, -78.95, 3.7, 0.74)
+	pt3dadd(-6.28, -80.33, 3.7, 0.74)
+	pt3dadd(-6.42, -81.72, 4.24, 0.74)
+	pt3dadd(-6.69, -83.74, 4.47, 0.74)
+	pt3dadd(-7.34, -85.3, 4.47, 0.74)
+	pt3dadd(-7.62, -86.77, 4.47, 0.74)
+	pt3dadd(-7.81, -88.52, 4.47, 0.74)
+	pt3dadd(-7.99, -90.63, 4.3, 0.74)
+	pt3dadd(-8.27, -92.66, 4.43, 0.74)
+	pt3dadd(-8.08, -94.68, 4.41, 0.74)
+	pt3dadd(-8.64, -96.15, 4.41, 0.74)
+	pt3dadd(-9.2, -97.25, 4.28, 0.93)
+	pt3dadd(-9.66, -98.72, 4.28, 0.74)
+	pt3dadd(-10.44, -100.1, 3.96, 0.74)
+	pt3dadd(-10.81, -101.7, 3.96, 0.83)
+	pt3dadd(-10.62, -103.3, 3.96, 0.83)
+	pt3dadd(-10.53, -105.2, 3.63, 0.74)
+	pt3dadd(-11.27, -106.9, 3.78, 0.74)
+	pt3dadd(-11.92, -108.4, 3.57, 0.74)
+	pt3dadd(-12.29, -109.4, 3.36, 0.65)
+	pt3dadd(-12.48, -111.1, 3.36, 0.56)
+	pt3dadd(-12.57, -112.7, 3.3, 0.56)
+	pt3dadd(-13.22, -115, 4.13, 0.56)
+	pt3dadd(-14.15, -116.8, 3.79, 0.56)
+	pt3dadd(-13.38, -118.3, 4.57, 0.56)
+	pt3dadd(-12.82, -119.1, 5.04, 0.56)
+	pt3dadd(-13.1, -120.3, 5.04, 0.56)
+  }
+  dend[4] {pt3dclear()
+	pt3dadd(3.13, -25.45, -4.47, 2.04)
+	pt3dadd(4.8, -26.55, -5.26, 0.74)
+	pt3dadd(6.1, -27.47, -5.26, 0.74)
+	pt3dadd(6.75, -28.67, -5.26, 0.74)
+	pt3dadd(7.03, -29.31, -5.26, 0.74)
+	pt3dadd(7.82, -30.02, -5.76, 0.65)
+	pt3dadd(8.84, -31.12, -5.76, 0.65)
+	pt3dadd(9.21, -32.04, -5.76, 0.56)
+  }
+  dend[5] {pt3dclear()
+	pt3dadd(-13.1, -120.3, 5.04, 0.56)
+	pt3dadd(-14.11, -121.4, 4.72, 0.56)
+	pt3dadd(-14.21, -122.6, 4.72, 0.56)
+	pt3dadd(-14.76, -123.4, 4.72, 0.65)
+	pt3dadd(-15.41, -123.7, 4.21, 0.65)
+	pt3dadd(-15.78, -124.5, 4.21, 0.83)
+  }
+  dend[6] {pt3dclear()
+	pt3dadd(-13.1, -120.3, 5.04, 0.56)
+	pt3dadd(-12.17, -121.9, 4.02, 0.56)
+	pt3dadd(-11.62, -123.7, 3.65, 0.56)
+	pt3dadd(-10.41, -125.8, 3.54, 0.56)
+	pt3dadd(-9.11, -128.1, 2.94, 0.56)
+	pt3dadd(-8.46, -130.2, 2.94, 0.56)
+	pt3dadd(-8.09, -132.2, 2.26, 0.56)
+	pt3dadd(-8.37, -133.7, 2.23, 0.65)
+	pt3dadd(-8.46, -134.9, 2.23, 0.56)
+	pt3dadd(-7.97, -136.2, 2.62, 0.56)
+	pt3dadd(-7.32, -137.7, 2.62, 0.56)
+  }
+  dend[7] {pt3dclear()
+	pt3dadd(9.21, -32.04, -5.76, 0.56)
+	pt3dadd(9.39, -33.61, -1.55, 0.56)
+	pt3dadd(9.39, -35.45, -1.56, 0.56)
+	pt3dadd(9.21, -37.56, -1.56, 0.56)
+	pt3dadd(8.84, -39.95, -0.95, 0.56)
+	pt3dadd(8.93, -41.7, -0.95, 0.56)
+	pt3dadd(10.32, -42.99, -0.95, 0.56)
+	pt3dadd(10.88, -44.55, -0.7, 0.56)
+	pt3dadd(11.62, -46.48, -1.07, 0.56)
+	pt3dadd(11.9, -48.59, -1.07, 0.56)
+	pt3dadd(12.36, -50.25, -0.44, 0.56)
+	pt3dadd(13.12, -52.35, -0.81, 0.65)
+	pt3dadd(13.68, -53.82, -0.81, 0.56)
+	pt3dadd(14.42, -55.11, -0.8, 0.56)
+	pt3dadd(15.07, -55.94, -0.8, 0.65)
+	pt3dadd(15.16, -56.58, -0.8, 0.74)
+	pt3dadd(15.53, -57.68, -0.47, 0.56)
+	pt3dadd(15.72, -59.43, -0.74, 0.56)
+	pt3dadd(16.09, -60.44, -0.82, 0.56)
+	pt3dadd(16.83, -61.82, -1.04, 0.56)
+	pt3dadd(17.2, -62.46, -1.73, 0.56)
+  }
+  dend[8] {pt3dclear()
+	pt3dadd(9.21, -32.04, -5.76, 0.56)
+	pt3dadd(11.27, -33.39, -0.4, 0.65)
+	pt3dadd(11.73, -35.69, -0.6, 0.65)
+	pt3dadd(12.85, -37.25, -0.6, 0.65)
+	pt3dadd(13.68, -38.26, 0.1, 0.56)
+	pt3dadd(14.05, -40.47, 0.78, 0.56)
+	pt3dadd(14.89, -42.31, 0.64, 0.56)
+	pt3dadd(16.09, -44.24, 0.64, 0.56)
+	pt3dadd(16.84, -46.72, 1.37, 0.56)
+	pt3dadd(18.32, -49.11, 2.13, 0.56)
+	pt3dadd(19.71, -50.58, 2.13, 0.56)
+	pt3dadd(20.81, -51.64, 1.69, 0.56)
+	pt3dadd(21.74, -52.38, 1.69, 0.56)
+  }
+  dend[9] {pt3dclear()
+	pt3dadd(-15.78, -124.5, 4.21, 0.83)
+	pt3dadd(-16.73, -125.7, 3.83, 0.46)
+	pt3dadd(-17.38, -126.8, 3.44, 0.46)
+	pt3dadd(-18.86, -128, 2.77, 0.46)
+	pt3dadd(-20.25, -129, 2.47, 0.46)
+	pt3dadd(-21.46, -130, 2.47, 0.46)
+	pt3dadd(-22.48, -131.6, 2.55, 0.46)
+	pt3dadd(-23.04, -132.4, 2.55, 0.65)
+	pt3dadd(-23.59, -133, 2.55, 0.56)
+	pt3dadd(-24.89, -134.2, 1.84, 0.56)
+	pt3dadd(-26.38, -135.7, 2.22, 0.56)
+	pt3dadd(-27.67, -137.2, 2.22, 0.56)
+	pt3dadd(-29.07, -139, 2.11, 0.56)
+	pt3dadd(-30.27, -140.5, 1.59, 0.56)
+	pt3dadd(-31.01, -141.4, 1.69, 0.56)
+	pt3dadd(-31.94, -142.6, 2.35, 0.56)
+	pt3dadd(-33.19, -144.3, 1.89, 0.56)
+	pt3dadd(-34.58, -146.5, 1.89, 0.56)
+	pt3dadd(-35.88, -148.8, 1.89, 0.56)
+	pt3dadd(-38.02, -150.5, 1.89, 0.56)
+	pt3dadd(-39.59, -152.3, 1.89, 0.56)
+	pt3dadd(-41.17, -154, 2.19, 0.56)
+	pt3dadd(-41.82, -155.9, 2.47, 0.56)
+	pt3dadd(-43.4, -157.3, 1.74, 0.56)
+	pt3dadd(-45.25, -158.7, 1.74, 0.56)
+	pt3dadd(-46.55, -159.6, 2.04, 0.56)
+	pt3dadd(-47.29, -160.4, 2.04, 0.56)
+  }
+  dend[10] {pt3dclear()
+	pt3dadd(-15.78, -124.5, 4.21, 0.83)
+	pt3dadd(-16.15, -126.2, 5.29, 0.46)
+	pt3dadd(-16.53, -127.6, 5.32, 0.46)
+	pt3dadd(-17.08, -128.3, 5.1, 0.46)
+	pt3dadd(-16.9, -129.7, 5.1, 0.46)
+	pt3dadd(-16.62, -131.3, 3.99, 0.46)
+	pt3dadd(-16.71, -133.4, 4.47, 0.46)
+	pt3dadd(-16.8, -135.1, 3.69, 0.46)
+	pt3dadd(-16.99, -137.4, 3.69, 0.46)
+	pt3dadd(-16.99, -139, 3.69, 0.46)
+	pt3dadd(-17.26, -141.4, 3.65, 0.46)
+	pt3dadd(-17.54, -143, 4.22, 0.46)
+	pt3dadd(-17.54, -144.1, 3.3, 0.46)
+  }
+}
+
+
+
+proc basic_shape() {
+  shape3d_1()
+//   shape3d_2()
+
+  
+}
+
+		
+	proc connect_pre() {  // $o1 target point process, $o2 returned NetCon
+	soma $o2 = new NetCon (&v(1), $o1)
+	//alternative statement		$o1.soma pre_list.append(new NetCon(soma.v(1),syn,0,Delsyn,0))
+	}
+
+	objref syn
+// 	objref DistalSynapses 
+// 	objref DistalSynapsePositions 
+	objref ProximalSynapses 
+	objref ProximalSynapsePositions 
+	proc synapse() { 
+  
+ // //***** PP syn   
+ 
+ 
+ // //***** MC syn   
+ 
+ProximalSynapses = new Vector(0,0) 
+ProximalSynapses .append(0,  1,  2 , 3,  4, 7 , 8) 
+ProximalSynapsePositions = new Vector(0,0) 
+ProximalSynapsePositions .append(0.5 ,        0.5   ,      0.5 ,    0.11298 ,        0.5  ,   0.19709   ,  0.24732) 
+for i= 0 , 6 { 
+dend[ProximalSynapses .x[i]] syn = new Exp2Syn(ProximalSynapsePositions .x[i]) // // MC syn *** Estimated 
+syn.tau1 = 1.5	syn.tau2 = 5.5	syn.e = 0 
+pre_list.append(syn) // #  
+} 
+ 
+ // //***** HIPP   
+ 
+ 
+ // //***** BC syn   
+ 
+soma syn = new Exp2Syn(0.5) // BC  syn syn based on Bartos 
+syn.tau1 = 0.26	syn.tau2 = 5.5	syn.e = -70 
+pre_list.append(syn) // # 0 
+ 
+ // //***** Sprout   
+ 
+for i= 0 , 6 { 
+dend[ProximalSynapses .x[i]] syn = new Exp2Syn(ProximalSynapsePositions .x[i]) // // MC syn *** Estimated 
+syn.tau1 = 1.5	syn.tau2 = 5.5	syn.e = 0 
+pre_list.append(syn) // # 0 
+} 
+
+}
+	func is_art() { return 0 }
+
+	endtemplate GranuleCell6
+//************************************************************************************************************
