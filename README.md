@@ -1,8 +1,6 @@
 This is a netpyne implementation of the Dentite Gyrus
 
-it only runs only a fork of netpyne available also here.
-
-run it with "python final.py"
+**run it with "python final.py"**
 
 main files are:
 		-DentiteGyrus_netParams.py
