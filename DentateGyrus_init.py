@@ -12,8 +12,16 @@ from netpyne import sim
 #          This code runs under a netpyne fork available here:
 #          - https://github.com/rodriguez-facundo/netpyne
 
-# read cfg and netParams from command line arguments if available; otherwise use default
-simConfig, netParams = sim.readCmdLineArgs(simConfigDefault='DentateGyrus_cfg.py', netParamsDefault='DentateGyrus_netParams.py')
 
-# Create network and run simulation
-sim.createSimulateAnalyze(netParams=netParams, simConfig=simConfig)
+
+from netpyne import sim
+import DentateGyrus_cfg as cfg
+import DentateGyrus_netParams as netParams
+
+sim.createSimulateAnalyze(netParams, cfg)
+#
+# # read cfg and netParams from command line arguments if available; otherwise use default
+# simConfig, netParams = sim.readCmdLineArgs(simConfigDefault='DentateGyrus_cfg.py', netParamsDefault='DentateGyrus_netParams.py')
+#
+# # Create network and run simulation
+# sim.createSimulateAnalyze(netParams=netParams, simConfig=simConfig)
