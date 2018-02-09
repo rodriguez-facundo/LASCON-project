@@ -1,4 +1,0 @@
-fname = 'proxSyn.dat'
-topo = np.loadtxt(fname=top_file, dtype='int16')
-
-print(topo)
