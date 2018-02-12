@@ -1,3 +1,0 @@
-print "This model has only been tested on the linux platform"
-load_file("nrngui.hoc")
-load_file("init.hoc")

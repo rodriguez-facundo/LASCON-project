@@ -16,11 +16,6 @@ from netpyne import sim
 #          The original model was written in hoc, and we replicated it using
 #          netpyne.
 
-# ATENTION
-# --------
-#          This code runs under a netpyne fork available here:
-#          - https://github.com/rodriguez-facundo/netpyne
-
 
 
 # EXTRA FUNCTIONS---------------------------------------------------------------
@@ -31,7 +26,8 @@ from netpyne import sim
 # distal dendrites. It will be used later to select target sections.
 
 def importSections():
-    files = ['pDend.dat', 'pPosDend.dat', 'dDend.dat', 'dPosDend.dat']
+    files = ['morpho/pDend.dat', 'morpho/pPosDend.dat',
+             'morpho/dDend.dat', 'morpho/dPosDend.dat']
 
     # dendrite list where to store the data from files
     dendList = [list() for i in range(4)]
@@ -178,7 +174,7 @@ labels = ['BC', 'MC', 'HIPP', 'GC']
 template = ['BasketCell', 'MossyCell', 'HIPPCell', 'GranuleCell']
 
 # topology file name
-top_file = 'Sample_50A50Y.dat'
+top_file = 'morpho/Sample_50A50Y.dat'
 
 # number of Granule cells reached by Perforant Path (PP)
 nP = 100  # real number is 100
@@ -331,7 +327,7 @@ for index, label in enumerate(labels[:-1]):
 for i in range(n[-1]):
     netParams.importCellParams( label=labels[-1]+str(i),
                                 conds={'cellType': labels[-1]+str(i) },
-                                fileName='n'+str(topo[i])+'.hoc',
+                                fileName='templates/n'+str(topo[i])+'.hoc',
                                 cellName=template[3]+str(topo[i]),
                                 importSynMechs=False
                                 )
@@ -341,7 +337,7 @@ for index, label in enumerate(labels[:-1]):
     for i in range(n[index]):
         netParams.importCellParams( label=label+str(i),
                                     conds={'cellLabel': label+str(i) },
-                                    fileName=label+'.hoc',
+                                    fileName='templates/'+label+'.hoc',
                                     cellName=template[index],
                                     importSynMechs=False
                                     )
