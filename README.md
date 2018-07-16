@@ -1,6 +1,16 @@
-This is a netpyne implementation of the Dentite Gyrus
+This is a netpyne implementation of the Dentite Gyrus model
 
-**run it trought: "nrniv -python init.py"**
+There are 3 files avaiable from which Granule cell morpologies are picked up:
+
+- morpho/100A0Y.dat (only mature cells)
+- morpho/50A50Y.dat (mature & young)
+- morpho/50A50P.dat (mature & PILO treated)
+
+to select one of those, go to **init.py** line 169
+
+You can also control the sprouting level with the **diver** matrix in line 196 in **init.py**.  (last row, last colum)
+
+**run it: "nrniv -python init.py"**
 
 the calcium activated Potassium channel does not work outside 6.3 degrees unless you set q10 = 1 and compile mod files again.
 
