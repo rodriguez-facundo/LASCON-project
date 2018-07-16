@@ -14,7 +14,11 @@ You can also control the sprouting level with the **diver** matrix in line 196 i
 
 the calcium activated Potassium channel does not work outside 6.3 degrees unless you set q10 = 1 and compile mod files again.
 
+templates n5, n111, n112 present disconected sections. You can choose other templates instead.
+
 you should get results similar to the ones below:
 
 ![screenshot from 2018-02-01 17-27-42](https://user-images.githubusercontent.com/32278395/35865801-a2c28f5c-0b3c-11e8-8611-b45ffb391bc4.png)
 ![screenshot from 2018-02-06 12-34-06](https://user-images.githubusercontent.com/32278395/35865802-a30f434c-0b3c-11e8-8980-7b5d8760cb7a.png)
+
+
