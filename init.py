@@ -196,7 +196,7 @@ valid = [[True, True, False, True],
 diver = [   [2, 5, 0, 100],
             [1, 3, 2, 100],
             [4, 4, 0, 160],
-            [2, 1, 3, 10]
+            [2, 1, 3, int(10)]
         ]
 
 # span from pre-synaptic cells to post-synaptic cells
@@ -210,7 +210,7 @@ span =  [[[0, 6],  [0, 15],  False,      [0, 500] ],
 conver = [  [3,     3,  0,      2],
             [4,     4,  6,      7],
             [5,     2,  0,      7],
-            [180,   38, 270,    14]
+            [180,   38, 270,    int(14)]
         ]
 
 # matrix of target sections for Mossy, Basket y HIPP cells
@@ -477,8 +477,8 @@ netParams.stimTargetParams['PP->MC'] = {
 
 # SIMULATION DEFINITIONS
 cfg = specs.SimConfig()
-cfg.duration = 5*1e2
-cfg.dt = 0.025
+cfg.duration = 250
+cfg.dt = 0.1
 cfg.hParams = {'v_init': -65}
 cfg.verbose = 1
 
@@ -487,9 +487,15 @@ colors = dict()
 for i in range(500): colors['GC'+str(i)] = 'black'
 for l, c in zip(['BC', 'MC', 'HIPP'], ['blue', 'red', 'blue']): colors[l] = c
 
-cfg.analysis['plotRaster'] = {'popColors':colors, 'markerSize':10, 'marker': 'o'}
-cfg.analysis['plot2Dnet'] = True
+cfg.analysis['plotRaster'] = {'popColors':colors, 'markerSize':2, 'dpi':300}
+#cfg.analysis['plot2Dnet'] = True
 
 # -------------------------------------RUN--------------------------------------
 
 sim.createSimulateAnalyze(netParams, cfg)
+
+
+# To obtain oscillations change the following parameters:
+# valid[3, 3] = True
+# diver[3,3] = 25
+# conver[3,3] = 28
